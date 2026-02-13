@@ -8,4 +8,4 @@ Seu papel é guardar histórico, detectar padrões de atividade e permitir retom
 
 ### Conceito Central
 O backend funciona como um diário automático de estudo.
-Ele registra quando uma notificação é enviada, quando o usuário interage com ela, quando ocorreu a última intração, em que estado de estudo o usuário estar.
+Ele registra quando uma notificação é enviada, quando o usuário interage com ela, quando ocorreu a última interação, em que estado de estudo o usuário estar.
