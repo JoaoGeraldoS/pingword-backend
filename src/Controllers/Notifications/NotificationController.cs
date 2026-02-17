@@ -28,7 +28,7 @@ namespace pingword.src.Controllers.Notifications
         [HttpPatch("{notificationId}/action")]
         public async Task<ActionResult<NotificationResponseDto>> UpdateNotification(Guid notificationId, [FromBody] UpdateNotificationDto status)
         {
-            var result = _service.UpdateNotificationAsync(notificationId, status.Notification);
+            var result = await _service.UpdateNotificationAsync(notificationId, status.Notification);
             return Ok(result);
         }
     }
