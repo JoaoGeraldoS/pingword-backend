@@ -8,11 +8,11 @@ using pingword.src.Data;
 
 #nullable disable
 
-namespace pingword.Migrations
+namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260213000207_InitialMigrations")]
-    partial class InitialMigrations
+    [Migration("20260216131044_AddDaysInterected")]
+    partial class AddDaysInterected
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -148,7 +148,7 @@ namespace pingword.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("pingword.Models.Notifications.Notification", b =>
+            modelBuilder.Entity("pingword.src.Models.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -181,11 +181,14 @@ namespace pingword.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("pingword.Models.StudyState.Study", b =>
+            modelBuilder.Entity("pingword.src.Models.StudyState.Study", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("DaysInteractedCount")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("LastInteraction")
                         .HasColumnType("TEXT");
@@ -209,7 +212,7 @@ namespace pingword.Migrations
                     b.ToTable("Studies");
                 });
 
-            modelBuilder.Entity("pingword.Models.Users.User", b =>
+            modelBuilder.Entity("pingword.src.Models.Users.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("TEXT");
@@ -293,7 +296,7 @@ namespace pingword.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("pingword.Models.Users.User", null)
+                    b.HasOne("pingword.src.Models.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -302,7 +305,7 @@ namespace pingword.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("pingword.Models.Users.User", null)
+                    b.HasOne("pingword.src.Models.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,7 +320,7 @@ namespace pingword.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("pingword.Models.Users.User", null)
+                    b.HasOne("pingword.src.Models.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -326,34 +329,34 @@ namespace pingword.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("pingword.Models.Users.User", null)
+                    b.HasOne("pingword.src.Models.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("pingword.Models.Notifications.Notification", b =>
+            modelBuilder.Entity("pingword.src.Models.Notifications.Notification", b =>
                 {
-                    b.HasOne("pingword.Models.Users.User", "User")
+                    b.HasOne("pingword.src.Models.Users.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("pingword.Models.StudyState.Study", b =>
+            modelBuilder.Entity("pingword.src.Models.StudyState.Study", b =>
                 {
-                    b.HasOne("pingword.Models.Users.User", "User")
+                    b.HasOne("pingword.src.Models.Users.User", "User")
                         .WithOne("StudyState")
-                        .HasForeignKey("pingword.Models.StudyState.Study", "UserId")
+                        .HasForeignKey("pingword.src.Models.StudyState.Study", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("pingword.Models.Users.User", b =>
+            modelBuilder.Entity("pingword.src.Models.Users.User", b =>
                 {
                     b.Navigation("Notifications");
 

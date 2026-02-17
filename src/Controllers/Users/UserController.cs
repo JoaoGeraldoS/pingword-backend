@@ -9,16 +9,24 @@ namespace pingword.src.Controllers.Users
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        
 
         public UserController(IUserService userService)
         {
-            _userService = userService;
+            _userService = userService; 
         }
 
         [HttpPost]
         public async Task<ActionResult<UserRegisterResponseDto>> RegisterUser([FromBody] UserRegisterRequestDto request)
         {
             var response = await _userService.RegisterUserAsync(request);
+            return Ok(response);
+        }
+
+        [HttpGet("{userId}/performance")]
+        public async Task<ActionResult<UserPerformaceDto>> GetUserPerformance(string userId)
+        {
+            var response = await _userService.GetUserPerformanceAsync(userId);
             return Ok(response);
         }
     }
