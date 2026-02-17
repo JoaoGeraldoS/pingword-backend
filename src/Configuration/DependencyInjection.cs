@@ -1,14 +1,17 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using pingword.src.Data;
-using pingword.src.Interfaces.Generic;
 using pingword.src.Interfaces.Notifications;
+using pingword.src.Interfaces.StudyState;
 using pingword.src.Interfaces.Users;
 using pingword.src.Models.Users;
-using pingword.src.Repositories.Generic;
+using pingword.src.Repositories.Notifications;
+using pingword.src.Repositories.StudyStates;
 using pingword.src.Repositories.Users;
 using pingword.src.Services.Notifications;
+using pingword.src.Services.StudyState;
 using pingword.src.Services.Users;
+using pingword.src.Workers;
 
 namespace pingword.src.Configuration
 {
@@ -16,8 +19,11 @@ namespace pingword.src.Configuration
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHostedService<StudyStateWorker>();
+
+
             services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("Db")));
+                options.UseSqlite(configuration.GetConnectionString("Db")));
 
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()
@@ -29,8 +35,12 @@ namespace pingword.src.Configuration
             services.AddScoped<IUserRepository, UserRepository>();
             
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IStudyStateRepository, StudyStateRepository>();
+            services.AddScoped<IStudyStateService, StudyStateService>();
+            
+           
 
             return services;
         }

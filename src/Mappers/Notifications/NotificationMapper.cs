@@ -17,12 +17,13 @@ namespace pingword.src.Mappers.Notifications
                 Action = notification.Action
             };
         }
-        public static Notification ToEntity(this NotificationRequestDto dto, string lang)
+        public static Notification ToEntity(this NotificationRequestDto dto, UserNotificationDto userNotification)
         {
             return new Notification
             {
+                UserId = userNotification.UserId,
                 Word = dto.Word,
-                Language = lang
+                Language = userNotification.Language,
             };
         }
     }
