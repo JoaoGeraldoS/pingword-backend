@@ -40,7 +40,6 @@ namespace pingword.src.Configuration
             services.AddScoped<IStudyStateRepository, StudyStateRepository>();
             services.AddScoped<IStudyStateService, StudyStateService>();
             
-           
 
             return services;
         }
