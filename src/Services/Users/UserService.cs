@@ -39,6 +39,7 @@ namespace pingword.src.Services.Users
             
             return new UserRegisterResponseDto
             {
+                Id = user.Id,
                 Username = user.UserName,
                 Language = user.Language!
             };
@@ -51,14 +52,15 @@ namespace pingword.src.Services.Users
             var last7Days = now.AddDays(-7);
             var last30Days = now.AddDays(-30);
 
-            var state = await _userRepository.GetStudyByUserId(userId); 
-             
+            var state = await _userRepository.GetStudyByUserId(userId);
+            _logger.LogInformation("Study state for user {UserId}: {Status}, Last Interaction: {LastInteraction}", userId, state?.Status, state?.LastInteraction);
+
             var notification = _userRepository.GetUserNotificationsQuery(userId);
             
-            if (state == null || notification == null)
-            {
-                throw new KeyNotFoundException("Username already exists.");
-            }
+            //if (state == null || notification == null)
+            //{
+            //    throw new KeyNotFoundException("Username already exists.");
+            //}
 
             var total = await notification.CountAsync();
             var last7DaysCount = await notification.Where(n => n.CreatedAt >= last7Days).CountAsync();
