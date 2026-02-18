@@ -19,14 +19,14 @@ namespace pingword.src.Controllers.Notifications
         }
 
         [HttpPost("{userId}")]
-        public async Task<ActionResult> AddNotification(string userId, [FromBody] NotificationRequestDto request)
+        public async Task<ActionResult<NotificationResponseDto>> AddNotification(string userId, [FromBody] NotificationRequestDto request)
         {
             var result = await _service.AddNotificationAsync(userId, request);
             return Ok(result);
         }
 
         [HttpPatch("{notificationId}/action")]
-        public async Task<ActionResult<NotificationResponseDto>> UpdateNotification(Guid notificationId, [FromBody] UpdateNotificationDto status)
+        public async Task<ActionResult> UpdateNotification(Guid notificationId, [FromBody] UpdateNotificationDto status)
         {
             var result = _service.UpdateNotificationAsync(notificationId, status.Notification);
             return Ok(result);
