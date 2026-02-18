@@ -21,6 +21,7 @@ namespace pingword.src.Controllers.Notifications
         [HttpPost("{userId}")]
         public async Task<ActionResult<NotificationResponseDto>> AddNotification(string userId, [FromBody] NotificationRequestDto request)
         {
+            _logger.LogInformation("Adding notification for user {UserId} with word {Word}", userId, request.Word);
             var result = await _service.AddNotificationAsync(userId, request);
             return Ok(result);
         }
@@ -28,6 +29,7 @@ namespace pingword.src.Controllers.Notifications
         [HttpPatch("{notificationId}/action")]
         public async Task<ActionResult> UpdateNotification(Guid notificationId, [FromBody] UpdateNotificationDto status)
         {
+            _logger.LogInformation("Updating notification {NotificationId} with status {Status}", notificationId, status);
             var result = await _service.UpdateNotificationAsync(notificationId, status.Notification);
             return Ok(result);
         }

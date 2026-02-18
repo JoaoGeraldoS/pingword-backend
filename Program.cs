@@ -52,25 +52,25 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-//using (var scope = app.Services.CreateScope())
-//{
-//    var services = scope.ServiceProvider;
-//    try
-//    {
-//        var context = services.GetRequiredService<AppDbContext>();
-//        context.Database.Migrate();
-//        Console.WriteLine("--> Banco de Dados migrado com sucesso!");
-//    }
-//    catch (Exception ex)
-//    {
-//        Console.WriteLine($"--> Erro ao migrar o banco: {ex.Message}");
-//    }
-//}
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        Log.Information("--> Banco de Dados migrado com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Log.Information($"--> Erro ao migrar o banco: {ex.Message}");
+    }
+}
 
 app.Run();
