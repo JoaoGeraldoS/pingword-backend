@@ -1,4 +1,6 @@
+using Microsoft.EntityFrameworkCore;
 using pingword.src.Configuration;
+using pingword.src.Data;
 using pingword.src.Errors;
 using Serilog;
 using Serilog.Events;
@@ -55,5 +57,20 @@ app.UseExceptionHandler();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("--> Banco de Dados migrado com sucesso!");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"--> Erro ao migrar o banco: {ex.Message}");
+    }
+}
 
 app.Run();
