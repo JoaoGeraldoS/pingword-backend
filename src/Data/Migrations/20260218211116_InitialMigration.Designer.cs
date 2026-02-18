@@ -11,8 +11,8 @@ using pingword.src.Data;
 namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260216131044_AddDaysInterected")]
-    partial class AddDaysInterected
+    [Migration("20260218211116_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

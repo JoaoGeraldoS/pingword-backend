@@ -188,6 +188,7 @@ namespace pingword.src.Data.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     UserId = table.Column<string>(type: "TEXT", nullable: false),
                     LastInteraction = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    DaysInteractedCount = table.Column<int>(type: "INTEGER", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },

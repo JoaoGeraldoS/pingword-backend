@@ -57,10 +57,7 @@ namespace pingword.src.Services.Users
 
             var notification = _userRepository.GetUserNotificationsQuery(userId);
             
-            //if (state == null || notification == null)
-            //{
-            //    throw new KeyNotFoundException("Username already exists.");
-            //}
+          
 
             var total = await notification.CountAsync();
             var last7DaysCount = await notification.Where(n => n.CreatedAt >= last7Days).CountAsync();
