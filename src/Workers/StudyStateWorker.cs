@@ -39,6 +39,7 @@ namespace pingword.src.Workers
                     _logger.LogError(ex, "Error processing inactivity check.");
                 }
                 await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
+
             }
         }
 
