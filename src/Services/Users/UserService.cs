@@ -22,21 +22,23 @@ namespace pingword.src.Services.Users
 
         public async Task<UserRegisterResponseDto> RegisterUserAsync(UserRegisterRequestDto request)
         {
-            _logger.LogInformation("Attempting to register user with username: {Username}", request.Username);
-
-            var existingUser = _userManager.FindByNameAsync(request.Username)
-                ?? throw new KeyNotFoundException("Username already exists.");
+            _logger.LogInformation("Attempting to register user with username: {Username}", request.Name);
 
             var user = new User
             {
-                UserName = request.Username,
+                Name = request.Name,
                 Language = request.Language,
+                UserName = Guid.NewGuid().ToString(),
                 SecurityStamp = Guid.NewGuid().ToString(),
             };
 
             var result = await _userManager.CreateAsync(user);
-            if (!result.Succeeded) throw new InvalidOperationException("User Creation failed");
-            
+            if (!result.Succeeded)
+            {
+                var errorMessages = string.Join(", ", result.Errors.Select(e => e.Description));
+                _logger.LogError("Falha na criação do Identity: {Errors}", errorMessages);
+                throw new InvalidOperationException("User Creation failed");
+            }
             return new UserRegisterResponseDto
             {
                 Id = user.Id,
@@ -56,8 +58,7 @@ namespace pingword.src.Services.Users
             _logger.LogInformation("Study state for user {UserId}: {Status}, Last Interaction: {LastInteraction}", userId, state?.Status, state?.LastInteraction);
 
             var notification = _userRepository.GetUserNotificationsQuery(userId);
-            
-          
+
 
             var total = await notification.CountAsync();
             var last7DaysCount = await notification.Where(n => n.CreatedAt >= last7Days).CountAsync();

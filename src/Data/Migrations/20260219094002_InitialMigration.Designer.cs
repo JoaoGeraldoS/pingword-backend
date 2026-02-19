@@ -11,7 +11,7 @@ using pingword.src.Data;
 namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260218211116_InitialMigration")]
+    [Migration("20260219094002_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -241,6 +241,10 @@ namespace pingword.src.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NormalizedEmail")

@@ -25,7 +25,7 @@ namespace pingword.src.Workers
                     {
                         var studyService = scope.ServiceProvider.GetRequiredService<IStudyStateService>();
 
-                        DateTime limitDate = DateTime.UtcNow.AddDays(-7);
+                        DateTime limitDate = DateTime.UtcNow.AddMinutes(-1);
 
                         _logger.LogInformation("Checking inactive studies since: {date}", limitDate);
 
@@ -38,7 +38,7 @@ namespace pingword.src.Workers
                 {
                     _logger.LogError(ex, "Error processing inactivity check.");
                 }
-                await Task.Delay(TimeSpan.FromDays(2), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
             }
         }
 

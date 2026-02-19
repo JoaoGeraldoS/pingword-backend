@@ -18,7 +18,6 @@ namespace pingword.src.Repositories.Users
             _context = context;
         }
 
-
         public async Task<User?> GetUserById(string id)
         {
             return await _context.Users

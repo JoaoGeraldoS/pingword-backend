@@ -6,6 +6,7 @@ namespace pingword.src.Models.Users
 {
     public class User : IdentityUser
     {
+        public string Name { get; set; } = string.Empty;
         public string? Language {  get; set; }
         public DateTime TimeZone { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
