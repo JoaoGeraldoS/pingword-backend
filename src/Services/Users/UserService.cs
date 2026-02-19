@@ -42,7 +42,7 @@ namespace pingword.src.Services.Users
             return new UserRegisterResponseDto
             {
                 Id = user.Id,
-                Username = user.UserName,
+                Username = user.Name,
                 Language = user.Language!
             };
         }
