@@ -21,9 +21,8 @@ namespace pingword.src.Configuration
         {
             services.AddHostedService<StudyStateWorker>();
 
-
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(configuration.GetConnectionString("Db")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<User, IdentityRole>()
                 .AddEntityFrameworkStores<AppDbContext>()

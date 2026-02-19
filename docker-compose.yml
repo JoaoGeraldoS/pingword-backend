@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:16
+    container_name: pingword_db
+    restart: always
+    environment:
+      POSTGRES_USER: user_pingword
+      POSTGRES_PASSWORD: password_123
+      POSTGRES_DB: pingword_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pingword_api
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=pingword_db;Username=user_pingword;Password=password_123
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

@@ -22,11 +22,11 @@ namespace pingword.src.Services.Users
 
         public async Task<UserRegisterResponseDto> RegisterUserAsync(UserRegisterRequestDto request)
         {
-            _logger.LogInformation("Attempting to register user with username: {Username}", request.Name);
+            _logger.LogInformation("Attempting to register user with username: {Username}", request.Username);
 
             var user = new User
             {
-                Name = request.Name,
+                Name = request.Username,
                 Language = request.Language,
                 UserName = Guid.NewGuid().ToString(),
                 SecurityStamp = Guid.NewGuid().ToString(),
@@ -42,7 +42,7 @@ namespace pingword.src.Services.Users
             return new UserRegisterResponseDto
             {
                 Id = user.Id,
-                Username = user.UserName,
+                Username = user.Name,
                 Language = user.Language!
             };
         }

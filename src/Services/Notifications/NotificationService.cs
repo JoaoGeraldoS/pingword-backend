@@ -31,8 +31,13 @@ namespace pingword.src.Services.Notifications
         {
             _logger.LogInformation("Adding notification for user {UserId} with word {Word}", userId, request.Word);
 
-            var user = await _userRepository.GetUserById(userId)
-                ?? throw new KeyNotFoundException("User already exists.");
+            var user = await _userRepository.GetUserById(userId);
+
+            if (user == null)
+            {
+                _logger.LogWarning("DEBUG: Usuário {Id} NÃO ENCONTRADO no banco. O banco pode ter resetado.", userId);
+                throw new KeyNotFoundException($"User {userId} not found in database.");
+            }
 
             var userNotification = new UserNotificationDto
             {
