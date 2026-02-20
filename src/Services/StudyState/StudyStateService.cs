@@ -20,7 +20,7 @@ namespace pingword.src.Services.StudyState
             Log.Information("Processing expired study states with limit date {LimitDate}", limitDate);
 
             var expiredStates = await _studyStateRepository.GetStateActiveAsync(limitDate);
-            if (expiredStates == null || !expiredStates.Any() )
+            if (expiredStates == null || !expiredStates.Any())
             {
                 return 0;
             }

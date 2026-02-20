@@ -46,7 +46,6 @@ namespace pingword.src.Models.StudyState
             LastInteraction = DateTime.UtcNow;
             LastUpdated = DateTime.UtcNow;
         }
-
         public void MarkAsInactive()
         {
             Status = Status.INACTIVE;
