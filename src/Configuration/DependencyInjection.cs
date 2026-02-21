@@ -1,13 +1,18 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using pingword.src.Data;
+using pingword.src.DTOs.FeedBacks;
+using pingword.src.Interfaces.FeedBacks;
 using pingword.src.Interfaces.Notifications;
 using pingword.src.Interfaces.StudyState;
 using pingword.src.Interfaces.Users;
 using pingword.src.Models.Users;
+using pingword.src.Repositories.FeedBacks;
 using pingword.src.Repositories.Notifications;
 using pingword.src.Repositories.StudyStates;
 using pingword.src.Repositories.Users;
+using pingword.src.Services.FeedBacks;
 using pingword.src.Services.Notifications;
 using pingword.src.Services.StudyState;
 using pingword.src.Services.Users;
@@ -38,6 +43,11 @@ namespace pingword.src.Configuration
 
             services.AddScoped<IStudyStateRepository, StudyStateRepository>();
             services.AddScoped<IStudyStateService, StudyStateService>();
+
+            services.AddScoped<IFeedBackRepository, FeedBackRepository>();
+            services.AddScoped<IFeedBackService, FeedBackService>();
+
+            services.AddValidatorsFromAssemblyContaining<FeedBackRequestDto>();
             
 
             return services;

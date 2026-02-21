@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using pingword.src.Models.FeedBacks;
 using pingword.src.Models.Notifications;
 using pingword.src.Models.StudyState;
 using pingword.src.Models.Users;
@@ -13,6 +14,8 @@ namespace pingword.src.Data
 
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Study> Studies { get; set; }
+
+        public DbSet<FeedBack> FeedBacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

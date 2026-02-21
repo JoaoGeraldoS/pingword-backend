@@ -1,6 +1,4 @@
-using Microsoft.EntityFrameworkCore;
 using pingword.src.Configuration;
-using pingword.src.Data;
 using pingword.src.Errors;
 using Serilog;
 using System.Text.Json.Serialization;
