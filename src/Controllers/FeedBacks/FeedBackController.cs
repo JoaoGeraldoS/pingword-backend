@@ -1,17 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using pingword.src.DTOs.FeedBacks;
 using pingword.src.Interfaces.FeedBacks;
+using Serilog;
 
 namespace pingword.src.Controllers.FeedBacks
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/feedback")]
     public class FeedBackController : ControllerBase
     {
         private readonly IFeedBackService _feedBackService;
-        public FeedBackController(IFeedBackService feedBackService)
+        private readonly ILogger<FeedBackController> _logger;
+        public FeedBackController(IFeedBackService feedBackService, ILogger<FeedBackController> logger)
         {
             _feedBackService = feedBackService;
+            _logger = logger;
         }
         [HttpPost]
         public async Task<IActionResult> CreateFeedBack([FromBody] FeedBackRequestDto request)
@@ -28,11 +31,15 @@ namespace pingword.src.Controllers.FeedBacks
             return Ok(feedBacks);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteFeedBack([FromQuery] Guid id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteFeedBack(Guid id)
         {
+            
+            _logger.LogInformation("Deletando feedback com ID: {Id}", id);
+            
             await _feedBackService.RemoveFeedBackAsync(id);
-            return Ok();
+            return NoContent();
+            
         }
     }
 }

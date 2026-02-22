@@ -6,7 +6,7 @@ using pingword.src.Interfaces.Notifications;
 namespace pingword.src.Controllers.Notifications
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/notification")]
     public class NotificationController : ControllerBase
     {
         private readonly INotificationService _service;

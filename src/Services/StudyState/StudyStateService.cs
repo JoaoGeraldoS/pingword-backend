@@ -46,7 +46,7 @@ namespace pingword.src.Services.StudyState
             {
                 study = new Study(userId);
                 await _studyStateRepository.AddStateAsync(study);
-                return;
+           
             } else
             {
                 study.RegisterInteraction();

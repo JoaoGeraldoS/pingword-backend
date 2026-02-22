@@ -5,7 +5,7 @@ using pingword.src.Interfaces.Users;
 namespace pingword.src.Controllers.Users
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

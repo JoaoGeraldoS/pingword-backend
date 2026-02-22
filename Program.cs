@@ -50,7 +50,7 @@ app.UseSerilogRequestLogging();
 
 app.UseExceptionHandler();
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

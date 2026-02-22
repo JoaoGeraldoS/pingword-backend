@@ -20,7 +20,7 @@ namespace pingword.src.Repositories.StudyStates
 
         public async Task<List<Study>> GetStateActiveAsync(DateTime limitDate) =>
             await _context.Studies
-                .Where(s => s.Status == Status.ACTIVE || s.Status == Status.RETURNING && s.LastInteraction < limitDate)
+                .Where(s => (s.Status == Status.ACTIVE || s.Status == Status.RETURNING) && s.LastInteraction < limitDate)
                 .ToListAsync();
 
         public async Task AddStateAsync(Study study)
