@@ -51,19 +51,26 @@ namespace pingword.src.Services.Users
             _logger.LogInformation("Fetching performance data for user with ID: {UserId}", userId);
 
             var now = DateTime.UtcNow;
-            var last7Days = now.AddDays(-7);
-            var last30Days = now.AddDays(-30);
+            var last7Days = now.AddDays(-7).Date;
+            var last30Days = now.AddDays(-30).Date;
 
             var state = await _userRepository.GetStudyByUserId(userId);
             _logger.LogInformation("Study state for user {UserId}: {Status}, Last Interaction: {LastInteraction}", userId, state?.Status, state?.LastInteraction);
 
             var notification = _userRepository.GetUserNotificationsQuery(userId);
 
-            var interationDates = notification.Select(n => n.CreatedAt.Date);
+           
 
-            var total = await interationDates.Distinct().CountAsync();
-            var last7DaysCount = await interationDates.Where(d => d >= last7Days.Date).Distinct().CountAsync();
-            var last30DaysCount = await interationDates.Where(d => d >= last30Days.Date).Distinct().CountAsync();
+            var total = await notification.CountAsync();
+            var last7DaysCount = await notification
+                .Where(n => n.CreatedAt >= last7Days)
+                .Select(n => n.CreatedAt.Date)
+                .Distinct().CountAsync();
+
+            var last30DaysCount = await notification
+                .Where(n => n.CreatedAt >= last30Days)
+                .Select(n => n.CreatedAt.Date)
+                .Distinct().CountAsync();
 
             return new UserPerformaceDto
             {
