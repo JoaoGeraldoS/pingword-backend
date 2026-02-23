@@ -59,10 +59,11 @@ namespace pingword.src.Services.Users
 
             var notification = _userRepository.GetUserNotificationsQuery(userId);
 
+            var interationDates = notification.Select(n => n.CreatedAt.Date);
 
-            var total = await notification.CountAsync();
-            var last7DaysCount = await notification.Where(n => n.CreatedAt >= last7Days).CountAsync();
-            var last30DaysCount = await notification.Where(n => n.CreatedAt >= last30Days).CountAsync();
+            var total = await interationDates.Distinct().CountAsync();
+            var last7DaysCount = await interationDates.Where(d => d >= last7Days.Date).Distinct().CountAsync();
+            var last30DaysCount = await interationDates.Where(d => d >= last30Days.Date).Distinct().CountAsync();
 
             return new UserPerformaceDto
             {
