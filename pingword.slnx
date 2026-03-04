@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="pingword.Tests/pingword.Tests.csproj" Id="3bfe7be4-3f8e-4465-b1b3-6de8d0f3ab0f" />
+  <Project Path="pingword/pingword.csproj" />
+</Solution>
