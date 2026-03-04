@@ -4,6 +4,7 @@
     {
         public string Id { get; set; } = string.Empty;
         public string Username { get; init; } = string.Empty;
+        public string Email { get; init; } = string.Empty;
         public string Language { get; set; } = string.Empty;
     }
 }

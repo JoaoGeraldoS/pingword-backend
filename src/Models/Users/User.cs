@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using pingword.src.Models.Notifications;
 using pingword.src.Models.StudyState;
+using pingword.src.Models.Words;
 
 namespace pingword.src.Models.Users
 {
@@ -13,5 +14,6 @@ namespace pingword.src.Models.Users
 
         public ICollection<Notification>? Notifications { get; set; }
         public Study? StudyState { get; set; }
+        public ICollection<Word>? Words { get; set; }
     }
 }

@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using pingword.src.DTOs.Notifications;
-using pingword.src.Enums.Notifications;
 using pingword.src.Interfaces.Notifications;
+using System.Security.Claims;
 
 namespace pingword.src.Controllers.Notifications
 {
@@ -18,11 +19,18 @@ namespace pingword.src.Controllers.Notifications
             _logger = logger;
         }
 
-        [HttpPost("{userId}")]
-        public async Task<ActionResult<NotificationResponseDto>> AddNotification(string userId, [FromBody] NotificationRequestDto request)
+        [Authorize]
+        [HttpPost]
+        public async Task<ActionResult<NotificationResponseDto>> AddNotification([FromBody] NotificationRequestDto request)
         {
-            _logger.LogInformation("Adding notification for user {UserId} with word {Word}", userId, request.Word);
-            var result = await _service.AddNotificationAsync(userId, request);
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userClaim == null) return Unauthorized();
+
+            _logger.LogInformation("Adding notification for user {UserId} with word {Word}", userClaim.Value, request.Word);
+
+
+
+            var result = await _service.AddNotificationAsync(userClaim.Value, request);
             return Ok(result);
         }
 

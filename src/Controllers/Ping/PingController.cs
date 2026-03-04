@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace pingword.src.Controllers.Ping
 {
@@ -9,6 +10,7 @@ namespace pingword.src.Controllers.Ping
         [HttpGet("health")]
         public IActionResult Health()
         {
+            Log.Information("Health check endpoint called");
             return Ok("pong");
         }
     }
