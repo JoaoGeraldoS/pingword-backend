@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using pingword.src.Enums.Users;
 using pingword.src.Models.Notifications;
 using pingword.src.Models.StudyState;
 using pingword.src.Models.Words;
@@ -11,6 +12,7 @@ namespace pingword.src.Models.Users
         public string? Language {  get; set; }
         public DateTime TimeZone { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public UserLevelEnum UserLevel { get; set; }
 
         public ICollection<Notification>? Notifications { get; set; }
         public Study? StudyState { get; set; }

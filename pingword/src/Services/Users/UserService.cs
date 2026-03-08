@@ -53,6 +53,7 @@ namespace pingword.src.Services.Users
                 Email = request.Email,
                 Language = request.Language,
                 UserName = Guid.NewGuid().ToString(),
+                UserLevel = request.UserLevel,
                 SecurityStamp = Guid.NewGuid().ToString(),
             };
 
@@ -68,7 +69,8 @@ namespace pingword.src.Services.Users
                 Id = user.Id,
                 Username = user.Name,
                 Email = user.Email,
-                Language = user.Language!
+                Language = user.Language!,
+                UserLevel = user.UserLevel,
             };
         }
        
@@ -84,6 +86,7 @@ namespace pingword.src.Services.Users
             {
                 new Claim(ClaimTypes.Name, getUser.Name!),
                 new Claim(ClaimTypes.Email, getUser.Email!),
+                new Claim("level", getUser.UserLevel.ToString()),
                 new Claim(ClaimTypes.NameIdentifier, getUser.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };

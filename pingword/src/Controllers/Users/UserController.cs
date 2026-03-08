@@ -47,7 +47,7 @@ namespace pingword.src.Controllers.Users
             if (userClaym == null) { return Unauthorized(); }
 
 
-            var response = await _userService.GetUserPerformanceAsync(userClaym.ToString());
+            var response = await _userService.GetUserPerformanceAsync(userClaym.Value.ToString());
             return Ok(response);
         }
     }

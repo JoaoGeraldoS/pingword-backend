@@ -1,4 +1,6 @@
-﻿namespace pingword.src.DTOs.Users
+﻿using pingword.src.Enums.Users;
+
+namespace pingword.src.DTOs.Users
 {
     public class UserRegisterResponseDto
     {
@@ -6,5 +8,6 @@
         public string Username { get; init; } = string.Empty;
         public string Email { get; init; } = string.Empty;
         public string Language { get; set; } = string.Empty;
+        public UserLevelEnum UserLevel { get; set; }
     }
 }

@@ -1,4 +1,7 @@
-﻿namespace pingword.src.DTOs.Words
+﻿    using pingword.src.Enums.Users;
+using pingword.src.Enums.Words;
+
+namespace pingword.src.DTOs.Words
 {
     public record WordUpdateRequestDto
     {
@@ -7,6 +10,8 @@
         public string Translation { get; set; } = string.Empty;
         public string Example { get; set; } = string.Empty;
         public bool IsDeleted { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public long UpdatedAt { get; set; }
+        public WordEnum WordEnum { get; set; }
+        public UserLevelEnum UserLevel { get; set; }
     }
 }

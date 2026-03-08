@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using pingword.src.DTOs.Words;
+using pingword.src.Enums.Users;
 using pingword.src.Interfaces.Words;
 using Serilog;
 using System.Security.Claims;
@@ -21,7 +22,7 @@ namespace pingword.src.Controllers.Words
 
         [Authorize]
         [HttpGet]
-        public async Task<ActionResult<List<WordResponseDto>>> GetWords()
+        public async Task<ActionResult<List<WordUpdateRequestDto>>> GetWords([FromQuery] UserLevelEnum level)
         {
             Log.Information("Getting words for user");
 
@@ -29,7 +30,7 @@ namespace pingword.src.Controllers.Words
 
             if (userClaim == null) return Unauthorized();
 
-            var words = await _wordService.GetWordsAsync(userClaim.Value);
+            var words = await _wordService.GetWordsAsync(userClaim.Value, level);
             return Ok(words);
         }
 
@@ -37,11 +38,6 @@ namespace pingword.src.Controllers.Words
         [HttpPost("sync")]
         public async Task<IActionResult> SyncWords([FromBody] List<WordUpdateRequestDto> words)
         {
-            foreach (var word in words)
-            {
-                Console.WriteLine($"Word: {word.Words}, Translation: {word.Translation}, Example: {word.Example}, IsDeleted: {word.IsDeleted}, UpdatedAt: {word.UpdatedAt}");
-            }
-
             Log.Information("Syncing words for user");
             var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userClaim == null) return Unauthorized();
@@ -51,12 +47,17 @@ namespace pingword.src.Controllers.Words
         }
 
 
-        [HttpPatch("{wordId}/intercation")]
+        [Authorize]
+        [HttpPatch("{wordId}/interaction")]
         public async Task<IActionResult> InteractionWord(Guid wordId, [FromBody] WordIteractionDto interaction)
         {
 
-            var userID = "29844e1e-804c-4846-9bad-8788a84ff354";
-            await _wordService.WordInteractionUpdate(userID, wordId, interaction.wordInteraction);
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userClaim == null) return Unauthorized();
+
+           Log.Information("Updating word interaction for user {UserId} and word {WordId} with interaction {Interaction}", userClaim.Value, wordId, interaction.wordInteraction);
+
+            await _wordService.WordInteractionUpdate(userClaim.Value, wordId, interaction.wordInteraction);
             return Ok();
         }
         

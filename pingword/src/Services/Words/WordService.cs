@@ -1,4 +1,5 @@
 ﻿using pingword.src.DTOs.Words;
+using pingword.src.Enums.Users;
 using pingword.src.Enums.Words;
 using pingword.src.Interfaces.Words;
 using pingword.src.Mappers.Words;
@@ -15,7 +16,7 @@ namespace pingword.src.Services.Words
             _repository = repository;
         }
 
-        public async Task<List<WordResponseDto>> GetWordsAsync(string userID)
+        public async Task<List<WordUpdateRequestDto>> GetWordsAsync(string userID, UserLevelEnum userLevel)
         {
             var user = await _repository.GetWordByUser(userID);
             if (user == null)
@@ -23,7 +24,7 @@ namespace pingword.src.Services.Words
                 throw new KeyNotFoundException("User not found");
             }
 
-            var wors = await _repository.GetAllWords(user.UserId!);
+            var wors = await _repository.GetAllWords(user.UserId!, userLevel);
             return wors.Select(WordMapper.ToDto).ToList();  
         }
 
@@ -31,41 +32,62 @@ namespace pingword.src.Services.Words
         {
             foreach (var word in words)
             {
-                var dbWord = await _repository.GetById(userId, word.Id);
-               
+
+                if (word.WordEnum != WordEnum.USER) continue;
+
+                var dbWord = await _repository.GetByIdInternal(word.Id);
+                var updatedAt = DateTimeOffset.FromUnixTimeMilliseconds(word.UpdatedAt).UtcDateTime;
+
 
                 if (dbWord != null)
                 {
-                    if (word.IsDeleted)
-                    {
-                        dbWord.IsDeletd = true;
-                        dbWord.UpdatedAt = word.UpdatedAt;
-                        await _repository.DeleteWord(dbWord);
-                    }
-                    else
-                    {
-                        dbWord.Words = word.Words;
-                        dbWord.Translation = word.Translation;
-                        dbWord.Example = word.Example;
-                        dbWord.UpdatedAt = word.UpdatedAt; 
-                    }
 
+                    if (dbWord.UserId != userId) continue;
+
+                    if (updatedAt > dbWord.UpdatedAt)
+                    {
+
+                        if (word.IsDeleted)
+                        {
+                            dbWord.IsDeleted = true;
+                            dbWord.UpdatedAt = updatedAt;
+                            await _repository.DeleteWord(dbWord);
+                        }
+                        else
+                        {
+
+
+                            dbWord.Words = word.Words;
+                            dbWord.Translation = word.Translation;
+                            dbWord.Example = word.Example;
+                            dbWord.UpdatedAt = updatedAt;
+
+                            await _repository.UpdateWrod(dbWord);
+                        }
+                    }
                 }
-       
                 else if (!word.IsDeleted)
                 {
-                    
-                    var newWord = new Word
-                    {
-                        Id = word.Id,
-                        UserId = userId,
-                        Words = word.Words,
-                        Translation = word.Translation,
-                        Example = word.Example,
-                        UpdatedAt = word.UpdatedAt
-                    };
+                   
+                    var existingByText = await _repository.GetByText(userId, word.Words, word.Translation);
 
-                    await _repository.AddWord(newWord);
+                    if (existingByText == null)
+                    {
+                        var newWord = new Word
+                        {
+                            Id = word.Id, 
+                            UserId = userId,
+                            Words = word.Words,
+                            Translation = word.Translation,
+                            Example = word.Example,
+                            UpdatedAt = updatedAt,
+                            IsDeleted = word.IsDeleted,
+                            UserLevel = word.UserLevel,
+                            WordEnum = word.WordEnum,
+                        };
+                        await _repository.AddWord(newWord);
+                    }
+                
                 }
             }
             await _repository.SaveChangesAsync();
@@ -73,7 +95,7 @@ namespace pingword.src.Services.Words
 
         public async Task WordInteractionUpdate(string userId, Guid id, WordInteractionEnum iteraction)
         {
-            var word = await _repository.GetById(userId, id);
+            var word = await _repository.GetByIdWithUser(userId, id);
             if (word == null)
             {
                 throw new KeyNotFoundException("Word not found");

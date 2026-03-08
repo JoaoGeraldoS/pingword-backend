@@ -5,15 +5,18 @@ namespace pingword.src.Mappers.Words
 {
     public static class WordMapper
     {
-        public static WordResponseDto ToDto(Word word)
+        public static WordUpdateRequestDto ToDto(Word word)
         {
-            return new WordResponseDto
+            return new WordUpdateRequestDto
             {
                 Id = word.Id,
                 Words = word.Words,
                 Translation = word.Translation,
                 Example = word.Example,
-                UserId = word.UserId
+                IsDeleted = word.IsDeleted,
+                UpdatedAt = word.UpdatedAt == DateTime.MinValue ? 0 : new DateTimeOffset(word.UpdatedAt).ToUnixTimeMilliseconds(),
+                WordEnum = word.WordEnum,
+                UserLevel = word.UserLevel,
             };
         }
 
@@ -25,7 +28,10 @@ namespace pingword.src.Mappers.Words
                 Words = wordRequestDto.Words,
                 Translation = wordRequestDto.Translation,
                 Example = wordRequestDto.Example,
-                UserId = wordRequestDto.UserId
+                IsDeleted =wordRequestDto.IsDeleted,
+                UserId = wordRequestDto.UserId,
+                WordEnum = wordRequestDto.WordEnum,
+                UserLevel = wordRequestDto.UserLevel,
             };
         }
     }

@@ -82,7 +82,7 @@ namespace pingword.src.Configuration
                     ValidIssuer = jwtOptions.ValidIssuer,
                     ValidAudience = jwtOptions.ValidAudience,
                     IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.FromMinutes(2)
                 };
             });
 
