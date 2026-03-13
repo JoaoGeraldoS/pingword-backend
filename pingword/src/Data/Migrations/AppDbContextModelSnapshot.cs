@@ -262,6 +262,9 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Language")
                         .HasColumnType("text");
 
@@ -291,6 +294,18 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("PremiumUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PurchaseToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");

@@ -12,8 +12,8 @@ using pingword.src.Data;
 namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260306123442_NewEndpoint")]
-    partial class NewEndpoint
+    [Migration("20260311105722_AddInitialMigration")]
+    partial class AddInitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,6 +265,9 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Language")
                         .HasColumnType("text");
 
@@ -295,6 +298,9 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("PremiumUntil")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -303,6 +309,9 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -348,6 +357,12 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WordEnum")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Words")
                         .IsRequired()

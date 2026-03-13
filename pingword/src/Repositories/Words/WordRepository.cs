@@ -21,7 +21,7 @@ namespace pingword.src.Repositories.Words
             await _context.Words.AddAsync(word);
         }
 
-        public async Task DeleteWord(Word word)
+        public void DeleteWord(Word word)
         {
             _context.Update(word);
         }
@@ -54,12 +54,9 @@ namespace pingword.src.Repositories.Words
                 .FirstOrDefaultAsync(w => w.Id == id && w.UserId == userId);
         }
 
-        public Task<Word?> GetWordByUser(string userId)
+        public async Task<int> CountAsync(string userId)
         {
-            return _context.Words
-                .AsNoTracking()
-                .Include(w => w.Users)
-                .FirstOrDefaultAsync(w => w.UserId == userId);
+            return await _context.Words.CountAsync(w => w.UserId == userId);
         }
 
         public async Task<Word?> GetByText(string userId, string text, string translation)
@@ -77,15 +74,14 @@ namespace pingword.src.Repositories.Words
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateWordInteractio(Word word)
+        public void UpdateWrod(Word word)
         {
             _context.Words.Update(word);
-            
         }
 
-        public async Task UpdateWrod(Word word)
+        public void DeleteWordAdmin(Word word)
         {
-            _context.Words.Update(word);
+             _context.Words.Remove(word);
         }
     }
 }

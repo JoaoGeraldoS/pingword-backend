@@ -1,6 +1,7 @@
 ﻿using pingword.src.DTOs.Words;
 using pingword.src.Enums.Users;
 using pingword.src.Enums.Words;
+using pingword.src.Interfaces.Users;
 using pingword.src.Interfaces.Words;
 using pingword.src.Mappers.Words;
 using pingword.src.Models.Words;
@@ -10,21 +11,31 @@ namespace pingword.src.Services.Words
     public class WordService : IWordService
     {
         private readonly IWordRepository _repository;
+        private readonly IUserRepository _userRepository;
 
-        public WordService(IWordRepository repository)
+        public WordService(IWordRepository repository, IUserRepository userRepository)
         {
             _repository = repository;
+            _userRepository = userRepository;
         }
+
+        public async Task DeleteWordAdmin(Guid wordId)
+        {
+            var word = await _repository.GetByIdInternal(wordId);
+            if (word == null)
+            {
+                throw new KeyNotFoundException("Word not found");
+            }
+            
+            _repository.DeleteWordAdmin(word);
+            await _repository.SaveChangesAsync();
+        }
+
 
         public async Task<List<WordUpdateRequestDto>> GetWordsAsync(string userID, UserLevelEnum userLevel)
         {
-            var user = await _repository.GetWordByUser(userID);
-            if (user == null)
-            {
-                throw new KeyNotFoundException("User not found");
-            }
-
-            var wors = await _repository.GetAllWords(user.UserId!, userLevel);
+           
+            var wors = await _repository.GetAllWords(userID, userLevel);
             return wors.Select(WordMapper.ToDto).ToList();  
         }
 
@@ -33,7 +44,7 @@ namespace pingword.src.Services.Words
             foreach (var word in words)
             {
 
-                if (word.WordEnum != WordEnum.USER) continue;
+                //if (word.WordEnum != WordEnum.USER) continue;
 
                 var dbWord = await _repository.GetByIdInternal(word.Id);
                 var updatedAt = DateTimeOffset.FromUnixTimeMilliseconds(word.UpdatedAt).UtcDateTime;
@@ -51,7 +62,7 @@ namespace pingword.src.Services.Words
                         {
                             dbWord.IsDeleted = true;
                             dbWord.UpdatedAt = updatedAt;
-                            await _repository.DeleteWord(dbWord);
+                            _repository.DeleteWord(dbWord);
                         }
                         else
                         {
@@ -62,7 +73,7 @@ namespace pingword.src.Services.Words
                             dbWord.Example = word.Example;
                             dbWord.UpdatedAt = updatedAt;
 
-                            await _repository.UpdateWrod(dbWord);
+                            _repository.UpdateWrod(dbWord);
                         }
                     }
                 }
@@ -70,6 +81,9 @@ namespace pingword.src.Services.Words
                 {
                    
                     var existingByText = await _repository.GetByText(userId, word.Words, word.Translation);
+
+                    await VerifyIsPremium(userId);
+
 
                     if (existingByText == null)
                     {
@@ -93,6 +107,18 @@ namespace pingword.src.Services.Words
             await _repository.SaveChangesAsync();
         }
 
+        private async Task VerifyIsPremium(string userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+
+            var wordCount = await _repository.CountAsync(userId);
+
+            if (!user.IsPremium && wordCount >= 20)
+            {
+                throw new InvalidOperationException("Limite de 20 palavras atingido para usuários Free. Torne-se Premium!");
+            }
+        }
+
         public async Task WordInteractionUpdate(string userId, Guid id, WordInteractionEnum iteraction)
         {
             var word = await _repository.GetByIdWithUser(userId, id);
@@ -104,7 +130,7 @@ namespace pingword.src.Services.Words
             word.InteractionEnum = iteraction;
             word.UpdatedAt = DateTime.UtcNow;
 
-            await _repository.UpdateWordInteractio(word);
+            _repository.UpdateWrod(word);
 
             await _repository.SaveChangesAsync();
         }

@@ -40,6 +40,7 @@ namespace pingword.src.Controllers.Words
         {
             Log.Information("Syncing words for user");
             var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
             if (userClaim == null) return Unauthorized();
 
             await _wordService.SyncWords(words, userClaim.Value);
@@ -55,11 +56,20 @@ namespace pingword.src.Controllers.Words
             var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userClaim == null) return Unauthorized();
 
-           Log.Information("Updating word interaction for user {UserId} and word {WordId} with interaction {Interaction}", userClaim.Value, wordId, interaction.wordInteraction);
+            Log.Information("Updating word interaction for user {UserId} and word {WordId} with interaction {Interaction}", userClaim.Value, wordId, interaction.wordInteraction);
 
             await _wordService.WordInteractionUpdate(userClaim.Value, wordId, interaction.wordInteraction);
             return Ok();
         }
-        
+
+
+        //[Authorize("AdminOnly")]
+        //[HttpDelete("{wordId}")]
+        //public async Task<IActionResult> DeleteWordAdmin(Guid wordId)
+        //{
+        //    Log.Information("Deleting word with id {WordId} by admin", wordId);
+        //    await _wordService.DeleteWordAdmin(wordId);
+        //    return Ok();
+        //}
     }
 }

@@ -12,8 +12,8 @@ using pingword.src.Data;
 namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260227143723_IsDeleteAdd")]
-    partial class IsDeleteAdd
+    [Migration("20260313162146_AddNewColumnUser")]
+    partial class AddNewColumnUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,6 +265,9 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Language")
                         .HasColumnType("text");
 
@@ -295,6 +298,18 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("PremiumUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PurchaseToken")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -303,6 +318,9 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -333,7 +351,10 @@ namespace pingword.src.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsDeletd")
+                    b.Property<int>("InteractionEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Translation")
@@ -345,6 +366,12 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<string>("UserId")
                         .HasColumnType("text");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WordEnum")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Words")
                         .IsRequired()

@@ -5,25 +5,24 @@
 namespace pingword.src.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class NewEnumAdd : Migration
+    public partial class AddNewColumnUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "WordEnum",
-                table: "Words",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.AddColumn<string>(
+                name: "PurchaseToken",
+                table: "AspNetUsers",
+                type: "text",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "WordEnum",
-                table: "Words");
+                name: "PurchaseToken",
+                table: "AspNetUsers");
         }
     }
 }

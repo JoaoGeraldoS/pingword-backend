@@ -12,8 +12,8 @@ using pingword.src.Data;
 namespace pingword.src.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260219164747_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260312105644_AddResetPassword")]
+    partial class AddResetPassword
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -157,6 +157,28 @@ namespace pingword.src.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("pingword.src.Models.FeedBacks.FeedBack", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("User")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FeedBacks");
+                });
+
             modelBuilder.Entity("pingword.src.Models.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -243,6 +265,9 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsPremium")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Language")
                         .HasColumnType("text");
 
@@ -273,6 +298,15 @@ namespace pingword.src.Data.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("PremiumUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ResetToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("ResetTokenExpiration")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -281,6 +315,9 @@ namespace pingword.src.Data.Migrations
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
@@ -296,6 +333,52 @@ namespace pingword.src.Data.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("pingword.src.Models.Words.Word", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Example")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("InteractionEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Translation")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserLevel")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WordEnum")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Words")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Words");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -369,11 +452,22 @@ namespace pingword.src.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("pingword.src.Models.Words.Word", b =>
+                {
+                    b.HasOne("pingword.src.Models.Users.User", "Users")
+                        .WithMany("Words")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Users");
+                });
+
             modelBuilder.Entity("pingword.src.Models.Users.User", b =>
                 {
                     b.Navigation("Notifications");
 
                     b.Navigation("StudyState");
+
+                    b.Navigation("Words");
                 });
 #pragma warning restore 612, 618
         }

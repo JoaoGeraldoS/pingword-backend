@@ -10,5 +10,6 @@ namespace pingword.src.Interfaces.Users
         Task<User?> GetUserById(string id);
         Task<Study?> GetStudyByUserId(string UserId);
         IQueryable<Notification> GetUserNotificationsQuery(string userId);
+        Task DeleteRange(string userId);
     }
 }

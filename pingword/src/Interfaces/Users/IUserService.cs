@@ -7,5 +7,9 @@ namespace pingword.src.Interfaces.Users
         Task<UserRegisterResponseDto> RegisterUserAsync(UserRegisterRequestDto request);
         Task<LoginResponseDto?> LoginUser(LoginRequestDto request);
         Task<UserPerformaceDto> GetUserPerformanceAsync(string userId);
+        Task<UserProfileResponseDto> GetProfileAsync(string userId);
+        Task<bool> ForgotPasswordAsync(ForgotPasswordDto request);
+        Task<bool> ResetPassword(ResetPasswordDto request);
+        Task<bool> DeleteAccountAsync(string userID);
     }
 }
