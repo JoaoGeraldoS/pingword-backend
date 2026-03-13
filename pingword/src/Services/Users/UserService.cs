@@ -1,12 +1,19 @@
 ﻿using FluentValidation;
+using Google.Apis.AndroidPublisher.v3;
+using Google.Apis.Auth;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using pingword.src.DTOs.Users;
 using pingword.src.Enums.StudyState;
 using pingword.src.Interfaces.Users;
 using pingword.src.Models.Users;
+using Serilog;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 namespace pingword.src.Services.Users
 {
@@ -18,16 +25,20 @@ namespace pingword.src.Services.Users
         private readonly ILogger<UserService> _logger;
         private readonly IValidator<UserRegisterRequestDto> _validator;
         private readonly ITokenService _tokenService;
+        private readonly IConfiguration _config;
+        
         public UserService(
             UserManager<User> userManager, IUserRepository userRepository,
             ILogger<UserService> logger, IValidator<UserRegisterRequestDto> validator,
-            ITokenService token)
+            ITokenService token, IConfiguration config)
         {
             _userManager = userManager;
             _userRepository = userRepository;
             _logger = logger;
             _validator = validator;
             _tokenService = token;
+            _config = config;
+            
         }
 
         public async Task<UserRegisterResponseDto> RegisterUserAsync(UserRegisterRequestDto request)
@@ -55,6 +66,7 @@ namespace pingword.src.Services.Users
                 UserName = Guid.NewGuid().ToString(),
                 UserLevel = request.UserLevel,
                 SecurityStamp = Guid.NewGuid().ToString(),
+                
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
@@ -87,6 +99,7 @@ namespace pingword.src.Services.Users
                 new Claim(ClaimTypes.Name, getUser.Name!),
                 new Claim(ClaimTypes.Email, getUser.Email!),
                 new Claim("level", getUser.UserLevel.ToString()),
+                new Claim("is_premium", getUser.IsPremium.ToString().ToLower()),
                 new Claim(ClaimTypes.NameIdentifier, getUser.Id.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
@@ -139,5 +152,113 @@ namespace pingword.src.Services.Users
             };
         }
 
+        public async Task<UserProfileResponseDto> GetProfileAsync(string userId)
+        {
+            var user = await _userRepository.GetUserById(userId);
+            if (user == null) { throw new KeyNotFoundException("User not exists"); }
+
+
+            return new UserProfileResponseDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email!,
+                IsPremium = user.IsPremium,
+                Language = user.Language!,
+                Level = user.UserLevel
+            };
+        }
+
+        public async Task<bool> ForgotPasswordAsync(ForgotPasswordDto request)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            Log.Information("Email: {Email}, user: {User}", user.Email, user);
+            if (user == null) return false;
+
+            var token = new Random().Next(100000, 999999).ToString();
+            user.ResetToken = token;
+            user.ResetTokenExpiration = DateTime.UtcNow.AddMinutes(15);
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                return false;
+            }
+
+            var sent = await SendEmailApi(user.Email!, token);
+            return sent;
+        }
+
+
+        public async Task<bool> ResetPassword(ResetPasswordDto request)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+                u.ResetToken == request.Token &&
+                u.ResetTokenExpiration > DateTime.UtcNow);
+            if (user == null) return false;
+
+            var NewPasswordHash = _userManager.PasswordHasher.HashPassword(user, request.NewPassword!);
+            user.PasswordHash = NewPasswordHash;
+
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            user.ResetToken = null;
+            user.ResetTokenExpiration = DateTime.UtcNow;
+
+            var result = await _userManager.UpdateAsync(user);
+            return result.Succeeded;
+
+        }
+
+
+        private async Task<bool> SendEmailApi(string email, string token)
+        {
+            try
+            {
+                using var client = new HttpClient();
+                var apiKey = _config["Brevo:ApiKey"];
+
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Add("api-key", apiKey);
+
+                var payload = new
+                {
+                    // Mantenha o seu e-mail validado aqui até você comprar um domínio
+                    sender = new { name = "PingWord App", email = "pinglabs.dev@gmail.com" },
+                    to = new[] { new { email = email } },
+                    subject = "Recuperação de Senha - PingWord",
+                    htmlContent = $@"
+                <div style='font-family: sans-serif; max-width: 600px; margin: auto;'>
+                    <h2>Seu código de acesso</h2>
+                    <p>Use o código abaixo para redefinir sua senha no app:</p>
+                    <h1 style='color: #00E5FF;'>{token}</h1>
+                    <p>Se não foi você, ignore este e-mail.</p>
+                </div>"
+                };
+
+                var response = await client.PostAsJsonAsync("https://api.brevo.com/v3/smtp/email", payload);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro crítico ao enviar: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAccountAsync(string userID)
+        {
+            var user = await _userManager.FindByIdAsync(userID);
+            if (user == null) return false;
+
+            
+            await _userRepository.DeleteRange(user.Id);
+
+            var userDeleted = await _userManager.DeleteAsync(user);
+            if (!userDeleted.Succeeded) return false;
+
+            return true;
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace pingword.src.Repositories.Users
             
         }
 
+
         public async Task<Study?> GetStudyByUserId(string UserId) =>
             await _context.Studies
             .AsNoTracking()
@@ -36,5 +37,24 @@ namespace pingword.src.Repositories.Users
                 .AsNoTracking()
                 .Where(n => n.UserId == userId && n.Action != null);
         }
+
+        public async Task DeleteRange(string userId)
+        {
+            var notifications = await _context.Notifications.Where(n => n.UserId == userId)
+                .ToListAsync();
+
+            if (notifications.Any())
+            {
+                _context.Notifications.RemoveRange(notifications);
+                
+            }
+
+            var words = await _context.Users.Where(w => w.Id == userId).ToListAsync();
+             _context.Users.RemoveRange(words);
+
+            await _context.SaveChangesAsync();
+        }
+
+        
     }
 }

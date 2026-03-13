@@ -13,6 +13,12 @@ namespace pingword.src.Models.Users
         public DateTime TimeZone { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public UserLevelEnum UserLevel { get; set; }
+        public bool IsPremium { get; set; }
+        public DateTime? PremiumUntil { get; set; }
+        public string? PurchaseToken { get; set; }
+
+        public string? ResetToken { get; set; }
+        public DateTime ResetTokenExpiration {  get; set; }
 
         public ICollection<Notification>? Notifications { get; set; }
         public Study? StudyState { get; set; }

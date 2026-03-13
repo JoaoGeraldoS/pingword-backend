@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace pingword.src.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class AddInitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,6 +35,9 @@ namespace pingword.src.Data.Migrations
                     Language = table.Column<string>(type: "text", nullable: true),
                     TimeZone = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserLevel = table.Column<int>(type: "integer", nullable: false),
+                    IsPremium = table.Column<bool>(type: "boolean", nullable: false),
+                    PremiumUntil = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     UserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -53,6 +56,20 @@ namespace pingword.src.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FeedBacks",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    User = table.Column<string>(type: "text", nullable: false),
+                    Message = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FeedBacks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -205,6 +222,32 @@ namespace pingword.src.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Words",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Words = table.Column<string>(type: "text", nullable: false),
+                    Translation = table.Column<string>(type: "text", nullable: false),
+                    Example = table.Column<string>(type: "text", nullable: false),
+                    InteractionEnum = table.Column<int>(type: "integer", nullable: false),
+                    WordEnum = table.Column<int>(type: "integer", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UserId = table.Column<string>(type: "text", nullable: true),
+                    UserLevel = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Words", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Words_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -252,6 +295,11 @@ namespace pingword.src.Data.Migrations
                 table: "Studies",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Words_UserId",
+                table: "Words",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -273,10 +321,16 @@ namespace pingword.src.Data.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "FeedBacks");
+
+            migrationBuilder.DropTable(
                 name: "Notifications");
 
             migrationBuilder.DropTable(
                 name: "Studies");
+
+            migrationBuilder.DropTable(
+                name: "Words");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

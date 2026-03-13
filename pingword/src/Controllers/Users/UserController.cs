@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using pingword.src.DTOs.Users;
 using pingword.src.Interfaces.Users;
+using pingword.src.Models.Users;
 using Serilog;
 using System.Security.Claims;
 
@@ -12,6 +13,7 @@ namespace pingword.src.Controllers.Users
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+
         
 
         public UserController(IUserService userService)
@@ -49,6 +51,45 @@ namespace pingword.src.Controllers.Users
 
             var response = await _userService.GetUserPerformanceAsync(userClaym.Value.ToString());
             return Ok(response);
+        }
+
+        [Authorize]
+        [HttpGet("profile")]
+        public async Task<ActionResult<UserProfileResponseDto>> GetProfileAsync()
+        {
+            var userClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if(userClaim == null) { return Unauthorized(); }
+
+            var response = await _userService.GetProfileAsync(userClaim.Value.ToString());
+            return Ok(response);
+        }
+
+        [Authorize]
+        [HttpDelete("delete-account")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) { return Unauthorized(); }
+
+            var deleted = await _userService.DeleteAccountAsync(userId);
+            return Ok(deleted);
+        }
+
+
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto request)
+        {
+            var sent = await _userService.ForgotPasswordAsync(request);
+            Log.Information($"Forgot password: {sent}");
+            return sent ? Ok() : StatusCode(500, "Erro ao enviar email");
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto request)
+        {
+            await _userService.ResetPassword(request);
+            return Ok("Senha alterada com sucesso!");
         }
     }
 }

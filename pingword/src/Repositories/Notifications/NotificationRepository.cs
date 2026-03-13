@@ -30,5 +30,7 @@ namespace pingword.src.Repositories.Notifications
             _context.Notifications.Update(notification);
             await _context.SaveChangesAsync();
         }
+
+        
     }
 }
