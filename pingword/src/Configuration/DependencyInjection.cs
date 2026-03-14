@@ -16,6 +16,7 @@ using pingword.src.Repositories.Notifications;
 using pingword.src.Repositories.StudyStates;
 using pingword.src.Repositories.Users;
 using pingword.src.Repositories.Words;
+using pingword.src.Services.Billing;
 using pingword.src.Services.FeedBacks;
 using pingword.src.Services.Notifications;
 using pingword.src.Services.StudyState;
@@ -61,6 +62,7 @@ namespace pingword.src.Configuration
             services.AddValidatorsFromAssemblyContaining<FeedBackRequestDto>();
             services.AddValidatorsFromAssemblyContaining<UserRegisterRequestDto>();
 
+            services.AddSingleton<IntegrityService>();
             
 
 

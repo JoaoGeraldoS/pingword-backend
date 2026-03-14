@@ -44,7 +44,7 @@ namespace pingword.src.Services.Words
             foreach (var word in words)
             {
 
-                //if (word.WordEnum != WordEnum.USER) continue;
+                if (word.WordEnum != WordEnum.USER) continue;
 
                 var dbWord = await _repository.GetByIdInternal(word.Id);
                 var updatedAt = DateTimeOffset.FromUnixTimeMilliseconds(word.UpdatedAt).UtcDateTime;
