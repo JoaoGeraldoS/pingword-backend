@@ -1,12 +1,14 @@
 ﻿
 using Google.Apis.AndroidPublisher.v3;
 using Google.Apis.Auth.OAuth2;
+using Google.Apis.PlayIntegrity.v1;
 using Google.Apis.Services;
 using Microsoft.AspNetCore.Identity;
 using pingword.src.Interfaces.Users;
 using pingword.src.Models.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace pingword.src.Services.Billing
 {
@@ -22,10 +24,14 @@ namespace pingword.src.Services.Billing
             _tokenService = tokenService;
 
             var json = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
+            if (string.IsNullOrEmpty(json))
+            {
+                throw new Exception("Variável de ambiente GOOGLE_SERVICE_ACCOUNT_JSON não encontrada!");
+            }
 
-            var credential = GoogleCredential
-                .FromJson(json)
-                .CreateScoped(AndroidPublisherService.Scope.Androidpublisher);
+            // Forma moderna de carregar o JSON sem o aviso de obsoleto
+            GoogleCredential credential = GoogleCredential.FromJson(json)
+                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
 
             _publisherService = new AndroidPublisherService(new BaseClientService.Initializer
             {
@@ -105,5 +111,7 @@ namespace pingword.src.Services.Billing
 
             return accessToken;
         }
+
+        
     }
 }
