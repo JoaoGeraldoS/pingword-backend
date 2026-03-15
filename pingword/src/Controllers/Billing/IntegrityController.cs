@@ -21,7 +21,7 @@ namespace pingword.src.Controllers.Billing
                 return BadRequest(new { success = false, message = "Token vazio" });
 
             if (_environment.IsDevelopment())
-            return Ok(new { success = true, debug = "Modo desenvolvimento" });
+                return Ok(new { success = true, debug = "Modo desenvolvimento" });
 
 
             try
