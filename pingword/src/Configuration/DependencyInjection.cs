@@ -39,7 +39,6 @@ namespace pingword.src.Configuration
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite(configuration.GetConnectionString("Db")));
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -62,10 +61,8 @@ namespace pingword.src.Configuration
             services.AddValidatorsFromAssemblyContaining<FeedBackRequestDto>();
             services.AddValidatorsFromAssemblyContaining<UserRegisterRequestDto>();
 
-            services.AddSingleton<IntegrityService>();
+            services.AddScoped<IntegrityService>();
             
-
-
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
             var jwtOptions = configuration.GetSection("JWT").Get<JwtOptions>() ?? throw new InvalidOperationException("JWT settings not Found");
 
