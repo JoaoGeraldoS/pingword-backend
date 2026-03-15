@@ -84,6 +84,20 @@ namespace pingword.src.Services.Billing
                 {
                     Console.WriteLine("❌ APP NÃO ENCONTRADO no projeto Google Cloud");
                     Console.WriteLine("💡 SOLUÇÃO: Linkar app no Play Console → App Integrity");
+
+                    Console.WriteLine($"--- ERRO DETALHADO DA API DO GOOGLE ---");
+                    Console.WriteLine($"Mensagem: {gex.Message}");
+                    Console.WriteLine($"Erro Interno: {gex.Error}"); // Aqui o Google explica o 'App is not found'
+                    Console.WriteLine($"HttpStatusCode: {gex.HttpStatusCode}");
+
+                    if (gex.Error != null && gex.Error.Errors != null)
+                    {
+                        foreach (var error in gex.Error.Errors)
+                        {
+                            Console.WriteLine($"Motivo: {error.Reason} - Detalhe: {error.Message}");
+                        }
+                    }
+                    
                     return "Configuração inválida: App não registrado no projeto Google Cloud";
                 }
                 throw;
