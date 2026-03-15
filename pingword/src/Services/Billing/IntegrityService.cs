@@ -51,12 +51,13 @@ namespace pingword.src.Services.Billing
 
             var appIntegrity = result.TokenPayloadExternal.AppIntegrity;
             var deviceIntegrity = result.TokenPayloadExternal.DeviceIntegrity;
+            var appVerdict = appIntegrity.AppRecognitionVerdict;
 
             if (appIntegrity.PackageName != _packageName)
                 return "Fraude: Package Name divergente";
 
             // PLAY_RECOGNIZED é o veredito de sucesso total
-            if (appIntegrity.AppRecognitionVerdict == "PLAY_RECOGNIZED")
+            if (appVerdict == "PLAY_RECOGNIZED" || appVerdict == "UNEVALUATED")
                 return "App Original e Seguro";
 
             return $"Atenção: App={appIntegrity.AppRecognitionVerdict}";
