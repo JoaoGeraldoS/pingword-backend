@@ -44,6 +44,9 @@ namespace pingword.src.Services.Billing
                 var service = GetPlayIntegrityService();
                 var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
                 string projectResource = _projectNumber.ToString();
+
+                Console.WriteLine($"🔍 Verificando token para project: {projectResource}");
+                Console.WriteLine($"📦 Package esperado: {_packageName}");
         
                 var result = await service.V1
                     .DecodeIntegrityToken(request, projectResource)
@@ -74,6 +77,16 @@ namespace pingword.src.Services.Billing
                     return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
         
                 return $"App não reconhecido: {appVerdict}";
+            }
+            catch (Google.GoogleApiException gex) when (gex.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
+            {
+                if (gex.Message.Contains("App is not found"))
+                {
+                Console.WriteLine("❌ APP NÃO ENCONTRADO no projeto Google Cloud");
+                Console.WriteLine("💡 SOLUÇÃO: Linkar app no Play Console → App Integrity");
+                return "Configuração inválida: App não registrado no projeto Google Cloud";
+                }
+                throw;
             }
             catch (Exception ex)
             {
