@@ -8,77 +8,78 @@ using System.Text;
 namespace pingword.src.Services.Billing
 {
     public class IntegrityService
-{
-    private readonly string _packageName = "com.pingword.app";
-    private readonly long _projectNumber = 540468689107;
-    private readonly IConfiguration _configuration;
-
-    public IntegrityService(IConfiguration configuration)
     {
-        _configuration = configuration;
-    }
-
-    private PlayIntegrityService GetPlayIntegrityService()
-    {
-        
-        var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
-                   ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
-
-        if (string.IsNullOrEmpty(json))
-            throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
-
-        var credential = GoogleCredential.FromJson(json)
-            .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
-
-        return new PlayIntegrityService(new BaseClientService.Initializer
+        private readonly string _packageName = "com.pingword.app";
+        private readonly long _projectNumber = 540468689107;
+        private readonly IConfiguration _configuration;
+    
+        public IntegrityService(IConfiguration configuration)
         {
-            HttpClientInitializer = credential,
-            ApplicationName = "PingWord-Backend"
-        });
-    }
-
-    public async Task<string> VerifyTokenAsync(string integrityToken)
-    {
-        try
-        {
-            var service = GetPlayIntegrityService();
-            var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
-            string projectResource = $"projects/{_projectNumber}";
-    
-            var result = await service.V1
-                .DecodeIntegrityToken(request, projectResource)
-                .ExecuteAsync();
-    
-            var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
-            var deviceIntegrity = result.TokenPayloadExternal?.DeviceIntegrity;
-            
-            // 🔍 LOGS DETALHADOS
-            Console.WriteLine($"PackageName: {appIntegrity?.PackageName}");
-            Console.WriteLine($"AppRecognitionVerdict: {appIntegrity?.AppRecognitionVerdict}");
-            Console.WriteLine($"DeviceRecognitionVerdict: {deviceIntegrity?.DeviceRecognitionVerdict}");
-    
-            if (appIntegrity?.PackageName != _packageName)
-            {
-                Console.WriteLine("❌ Package Name divergente");
-                return "Fraude: Package Name divergente";
-            }
-    
-            var appVerdict = appIntegrity.AppRecognitionVerdict;
-            Console.WriteLine($"App Verdict: {appVerdict}");
-    
-            if (appVerdict == "PLAY_RECOGNIZED")
-                return "App Original e Seguro";
-                
-            // UNEVALUATED pode ser aceito em alguns casos
-            if (appVerdict == "UNEVALUATED")
-                return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
-    
-            return $"App não reconhecido: {appVerdict}";
+            _configuration = configuration;
         }
-        catch (Exception ex)
+    
+        private PlayIntegrityService GetPlayIntegrityService()
         {
-            Console.WriteLine($"❌ Play Integrity Error: {ex.Message}");
-            return $"Erro técnico: {ex.Message}";
+            
+            var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
+                       ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
+    
+            if (string.IsNullOrEmpty(json))
+                throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
+    
+            var credential = GoogleCredential.FromJson(json)
+                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
+    
+            return new PlayIntegrityService(new BaseClientService.Initializer
+            {
+                HttpClientInitializer = credential,
+                ApplicationName = "PingWord-Backend"
+            });
+        }
+    
+        public async Task<string> VerifyTokenAsync(string integrityToken)
+        {
+            try
+            {
+                var service = GetPlayIntegrityService();
+                var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
+                string projectResource = $"projects/{_projectNumber}";
+        
+                var result = await service.V1
+                    .DecodeIntegrityToken(request, projectResource)
+                    .ExecuteAsync();
+        
+                var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
+                var deviceIntegrity = result.TokenPayloadExternal?.DeviceIntegrity;
+                
+                // 🔍 LOGS DETALHADOS
+                Console.WriteLine($"PackageName: {appIntegrity?.PackageName}");
+                Console.WriteLine($"AppRecognitionVerdict: {appIntegrity?.AppRecognitionVerdict}");
+                Console.WriteLine($"DeviceRecognitionVerdict: {deviceIntegrity?.DeviceRecognitionVerdict}");
+        
+                if (appIntegrity?.PackageName != _packageName)
+                {
+                    Console.WriteLine("❌ Package Name divergente");
+                    return "Fraude: Package Name divergente";
+                }
+        
+                var appVerdict = appIntegrity.AppRecognitionVerdict;
+                Console.WriteLine($"App Verdict: {appVerdict}");
+        
+                if (appVerdict == "PLAY_RECOGNIZED")
+                    return "App Original e Seguro";
+                    
+                // UNEVALUATED pode ser aceito em alguns casos
+                if (appVerdict == "UNEVALUATED")
+                    return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
+        
+                return $"App não reconhecido: {appVerdict}";
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Play Integrity Error: {ex.Message}");
+                return $"Erro técnico: {ex.Message}";
+            }
         }
     }
 }
