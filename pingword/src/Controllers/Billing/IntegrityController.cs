@@ -24,6 +24,8 @@ namespace pingword.src.Controllers.Billing
             {
                 var status = await _integrityService.VerifyTokenAsync(request.Token);
 
+                Console.WriteLine($"[DEBUG] Play Integrity Status: {status}");
+
                 if (status == "App Original e Seguro")
                     return Ok(new { success = true });
 
