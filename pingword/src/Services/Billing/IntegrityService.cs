@@ -43,7 +43,7 @@ namespace pingword.src.Services.Billing
             {
                 var service = GetPlayIntegrityService();
                 var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
-                string projectResource = _projectNumber.ToString();
+                var projectResource = $"projects/540468689107";
 
                 Console.WriteLine($"🔍 Verificando token para project: {projectResource}");
                 Console.WriteLine($"📦 Package esperado: {_packageName}");
