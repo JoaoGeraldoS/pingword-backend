@@ -20,6 +20,10 @@ namespace pingword.src.Controllers.Billing
             if (string.IsNullOrEmpty(request.Token))
                 return BadRequest(new { success = false, message = "Token vazio" });
 
+            if (_environment.IsDevelopment())
+            return Ok(new { success = true, debug = "Modo desenvolvimento" });
+
+
             try
             {
                 var status = await _integrityService.VerifyTokenAsync(request.Token);
