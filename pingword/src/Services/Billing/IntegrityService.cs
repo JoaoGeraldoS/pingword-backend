@@ -44,28 +44,41 @@ namespace pingword.src.Services.Billing
             var service = GetPlayIntegrityService();
             var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
             string projectResource = $"projects/{_projectNumber}";
-
+    
             var result = await service.V1
                 .DecodeIntegrityToken(request, projectResource)
                 .ExecuteAsync();
-
-            var appIntegrity = result.TokenPayloadExternal.AppIntegrity;
-            var deviceIntegrity = result.TokenPayloadExternal.DeviceIntegrity;
-            var appVerdict = appIntegrity.AppRecognitionVerdict;
-
-            if (appIntegrity.PackageName != _packageName)
+    
+            var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
+            var deviceIntegrity = result.TokenPayloadExternal?.DeviceIntegrity;
+            
+            // 🔍 LOGS DETALHADOS
+            Console.WriteLine($"PackageName: {appIntegrity?.PackageName}");
+            Console.WriteLine($"AppRecognitionVerdict: {appIntegrity?.AppRecognitionVerdict}");
+            Console.WriteLine($"DeviceRecognitionVerdict: {deviceIntegrity?.DeviceRecognitionVerdict}");
+    
+            if (appIntegrity?.PackageName != _packageName)
+            {
+                Console.WriteLine("❌ Package Name divergente");
                 return "Fraude: Package Name divergente";
-
-            // PLAY_RECOGNIZED é o veredito de sucesso total
-            if (appVerdict == "PLAY_RECOGNIZED" || appVerdict == "UNEVALUATED")
+            }
+    
+            var appVerdict = appIntegrity.AppRecognitionVerdict;
+            Console.WriteLine($"App Verdict: {appVerdict}");
+    
+            if (appVerdict == "PLAY_RECOGNIZED")
                 return "App Original e Seguro";
-
-            return $"Atenção: App={appIntegrity.AppRecognitionVerdict}";
+                
+            // UNEVALUATED pode ser aceito em alguns casos
+            if (appVerdict == "UNEVALUATED")
+                return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
+    
+            return $"App não reconhecido: {appVerdict}";
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"❌ Play Integrity Error: {ex.Message}");
             return $"Erro técnico: {ex.Message}";
         }
     }
-}
 }
