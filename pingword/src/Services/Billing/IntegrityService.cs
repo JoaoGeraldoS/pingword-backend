@@ -1,9 +1,7 @@
-﻿using Google.Apis.AndroidPublisher.v3;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.PlayIntegrity.v1;
 using Google.Apis.PlayIntegrity.v1.Data;
 using Google.Apis.Services;
-using System.Text;
 
 namespace pingword.src.Services.Billing
 {
@@ -12,31 +10,31 @@ namespace pingword.src.Services.Billing
         private readonly string _packageName = "com.pingword.app";
         private readonly long _projectNumber = 540468689107;
         private readonly IConfiguration _configuration;
-    
+
         public IntegrityService(IConfiguration configuration)
         {
             _configuration = configuration;
         }
-    
+
         private PlayIntegrityService GetPlayIntegrityService()
         {
-            
+
             var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
                        ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
-    
+
             if (string.IsNullOrEmpty(json))
                 throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
-    
+
             var credential = GoogleCredential.FromJson(json)
                 .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
-    
+
             return new PlayIntegrityService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
                 ApplicationName = "PingWord-Backend"
             });
         }
-    
+
         public async Task<string> VerifyTokenAsync(string integrityToken)
         {
             try
@@ -47,44 +45,44 @@ namespace pingword.src.Services.Billing
 
                 Console.WriteLine($"🔍 Verificando token para project: {projectResource}");
                 Console.WriteLine($"📦 Package esperado: {_packageName}");
-        
+
                 var result = await service.V1
                     .DecodeIntegrityToken(request, projectResource)
                     .ExecuteAsync();
-        
+
                 var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
                 var deviceIntegrity = result.TokenPayloadExternal?.DeviceIntegrity;
-                
+
                 // 🔍 LOGS DETALHADOS
                 Console.WriteLine($"PackageName: {appIntegrity?.PackageName}");
                 Console.WriteLine($"AppRecognitionVerdict: {appIntegrity?.AppRecognitionVerdict}");
                 Console.WriteLine($"DeviceRecognitionVerdict: {deviceIntegrity?.DeviceRecognitionVerdict}");
-        
+
                 if (appIntegrity?.PackageName != _packageName)
                 {
                     Console.WriteLine("❌ Package Name divergente");
                     return "Fraude: Package Name divergente";
                 }
-        
+
                 var appVerdict = appIntegrity.AppRecognitionVerdict;
                 Console.WriteLine($"App Verdict: {appVerdict}");
-        
+
                 if (appVerdict == "PLAY_RECOGNIZED")
                     return "App Original e Seguro";
-                    
+
                 // UNEVALUATED pode ser aceito em alguns casos
                 if (appVerdict == "UNEVALUATED")
                     return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
-        
+
                 return $"App não reconhecido: {appVerdict}";
             }
             catch (Google.GoogleApiException gex) when (gex.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
             {
                 if (gex.Message.Contains("App is not found"))
                 {
-                Console.WriteLine("❌ APP NÃO ENCONTRADO no projeto Google Cloud");
-                Console.WriteLine("💡 SOLUÇÃO: Linkar app no Play Console → App Integrity");
-                return "Configuração inválida: App não registrado no projeto Google Cloud";
+                    Console.WriteLine("❌ APP NÃO ENCONTRADO no projeto Google Cloud");
+                    Console.WriteLine("💡 SOLUÇÃO: Linkar app no Play Console → App Integrity");
+                    return "Configuração inválida: App não registrado no projeto Google Cloud";
                 }
                 throw;
             }
