@@ -25,6 +25,8 @@ namespace pingword.src.Services.Billing
             if (string.IsNullOrEmpty(json))
                 throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
 
+            Console.WriteLine($"[DEBUG] JSON inicia com: {json.Substring(0, 20)}...");
+
             var credential = GoogleCredential.FromJson(json)
                 .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
 
