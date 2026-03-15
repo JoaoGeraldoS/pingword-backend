@@ -33,7 +33,7 @@ namespace pingword.src.Controllers.Billing
             catch (Exception ex)
             {
           
-                return StatusCode(500, new { success = false, message = "Erro interno na validação" });
+                return StatusCode(500, new { success = false, message = ex.Message, detail = ex.InnerException?.Message });
             }
         }
     }
