@@ -8,59 +8,63 @@ using System.Text;
 namespace pingword.src.Services.Billing
 {
     public class IntegrityService
+{
+    private readonly string _packageName = "com.pingword.app";
+    private readonly long _projectNumber = 540468689107;
+    private readonly IConfiguration _configuration;
+
+    public IntegrityService(IConfiguration configuration)
     {
-        private readonly PlayIntegrityService _playIntegrityService;
-        private readonly string _packageName = "com.pingword.app";
-        private readonly long _projectNumber = 540468689107;
+        _configuration = configuration;
+    }
 
-        public IntegrityService()
+    private PlayIntegrityService GetPlayIntegrityService()
+    {
+        
+        var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
+                   ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
+
+        if (string.IsNullOrEmpty(json))
+            throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
+
+        var credential = GoogleCredential.FromJson(json)
+            .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
+
+        return new PlayIntegrityService(new BaseClientService.Initializer
         {
-            
-            var json = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
+            HttpClientInitializer = credential,
+            ApplicationName = "PingWord-Backend"
+        });
+    }
 
-            if (string.IsNullOrEmpty(json))
-            {
-                throw new Exception("Variável de ambiente GOOGLE_SERVICE_ACCOUNT_JSON não encontrada!");
-            }
-
-            // Forma moderna de carregar o JSON sem o aviso de obsoleto
-            GoogleCredential credential = GoogleCredential.FromJson(json)
-                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
-
-            _playIntegrityService = new PlayIntegrityService(new BaseClientService.Initializer
-            {
-                HttpClientInitializer = credential,
-                ApplicationName = "PingWord-Backend"
-            });
-        }
-
-        public async Task<string> VerifyTokenAsync(string integrityToken)
+    public async Task<string> VerifyTokenAsync(string integrityToken)
+    {
+        try
         {
+            var service = GetPlayIntegrityService();
             var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
             string projectResource = $"projects/{_projectNumber}";
 
-           
-            var result = await _playIntegrityService.V1
+            var result = await service.V1
                 .DecodeIntegrityToken(request, projectResource)
                 .ExecuteAsync();
 
-            var deviceVerdict = result.TokenPayloadExternal.DeviceIntegrity.DeviceRecognitionVerdict;
-            var appVerdict = result.TokenPayloadExternal.AppIntegrity.AppRecognitionVerdict;
+            var appIntegrity = result.TokenPayloadExternal.AppIntegrity;
+            var deviceIntegrity = result.TokenPayloadExternal.DeviceIntegrity;
 
-            
-            var tokenPackage = result.TokenPayloadExternal.AppIntegrity.PackageName;
-            if (tokenPackage != _packageName)
-            {
+            if (appIntegrity.PackageName != _packageName)
                 return "Fraude: Package Name divergente";
-            }
 
-            
-            if (appVerdict == "PLAY_RECOGNIZED" && deviceVerdict.Contains("MEETS_DEVICE_INTEGRITY"))
-            {
+            // PLAY_RECOGNIZED é o veredito de sucesso total
+            if (appIntegrity.AppRecognitionVerdict == "PLAY_RECOGNIZED")
                 return "App Original e Seguro";
-            }
 
-            return $"Possível Fraude: App={appVerdict}, Device={string.Join(",", deviceVerdict)}";
+            return $"Atenção: App={appIntegrity.AppRecognitionVerdict}";
+        }
+        catch (Exception ex)
+        {
+            return $"Erro técnico: {ex.Message}";
         }
     }
+}
 }
