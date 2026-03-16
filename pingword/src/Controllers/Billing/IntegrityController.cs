@@ -40,5 +40,5 @@ namespace pingword.src.Controllers.Billing
         }
     }
 
-    public class IntegrityRequest { public string Token { get; set; } }
+    public class IntegrityRequest { public string? Token { get; set; } }
 }
