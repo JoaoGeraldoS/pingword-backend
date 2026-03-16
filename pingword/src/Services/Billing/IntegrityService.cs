@@ -80,6 +80,7 @@ namespace pingword.src.Services.Billing
             }
             catch (Google.GoogleApiException gex) when (gex.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
             {
+                //Remover esse catch em produção
                 if (gex.Message.Contains("App is not found"))
                 {
                     Console.WriteLine("✅ Modo TESTE: App em fase interna (Play Integrity skip)");
