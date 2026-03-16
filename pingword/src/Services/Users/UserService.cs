@@ -172,7 +172,7 @@ namespace pingword.src.Services.Users
         public async Task<bool> ForgotPasswordAsync(ForgotPasswordDto request)
         {
             var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-            Log.Information("Email: {Email}, user: {User}", user.Email, user);
+            
             if (user == null) return false;
 
             var token = new Random().Next(100000, 999999).ToString();
