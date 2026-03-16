@@ -52,7 +52,7 @@ namespace pingword.src.Controllers.Billing
         }
 
         [HttpPost("google-play-webhook")]
-        public async Task<IActionResult> GoogleWebhook([FromBody] object body)
+        public IActionResult GoogleWebhook([FromBody] object body)
         {
             Console.WriteLine(body);
             return Ok();
