@@ -64,7 +64,7 @@ namespace pingword.src.Controllers.Billing
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await _googlePlayService.Restore(userId);
+            var user = await _googlePlayService.Restore(userId!);
 
             if (user == null)
                 return NotFound();
@@ -90,7 +90,7 @@ namespace pingword.src.Controllers.Billing
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await _googlePlayService.Restore(userId);
+            var user = await _googlePlayService.Restore(userId!);
 
             bool isPremium = user.PremiumUntil != null &&
                              user.PremiumUntil > DateTime.UtcNow;
