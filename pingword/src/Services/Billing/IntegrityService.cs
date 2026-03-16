@@ -33,7 +33,7 @@ namespace pingword.src.Services.Billing
             return new PlayIntegrityService(new BaseClientService.Initializer
             {
                 HttpClientInitializer = credential,
-                ApplicationName = "PingWord-Backend"
+                ApplicationName = "PingWord"
             });
         }
 
