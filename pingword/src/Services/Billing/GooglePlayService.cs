@@ -29,9 +29,10 @@ namespace pingword.src.Services.Billing
                 throw new Exception("Variável de ambiente GOOGLE_SERVICE_ACCOUNT_JSON não encontrada!");
             }
 
-            // Forma moderna de carregar o JSON sem o aviso de obsoleto
-            GoogleCredential credential = GoogleCredential.FromJson(json)
-                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
+            var credential = CredentialFactory
+            .FromJson<ServiceAccountCredential>(json)
+            .ToGoogleCredential()
+            .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
 
             _publisherService = new AndroidPublisherService(new BaseClientService.Initializer
             {
