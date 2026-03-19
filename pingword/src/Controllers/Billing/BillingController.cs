@@ -52,10 +52,10 @@ namespace pingword.src.Controllers.Billing
         }
 
         [HttpPost("google-play-webhook")]
-        public async Task<IActionResult> GoogleWebhook([FromBody] object body)
+        public IActionResult GoogleWebhook([FromBody] object body)
         {
             Console.WriteLine(body);
-            return Ok();
+            return  Ok();
         }
 
         [Authorize]
@@ -64,7 +64,7 @@ namespace pingword.src.Controllers.Billing
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await _googlePlayService.Restore(userId);
+            var user = await _googlePlayService.Restore(userId!);
 
             if (user == null)
                 return NotFound();
@@ -90,7 +90,7 @@ namespace pingword.src.Controllers.Billing
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var user = await _googlePlayService.Restore(userId);
+            var user = await _googlePlayService.Restore(userId!);
 
             bool isPremium = user.PremiumUntil != null &&
                              user.PremiumUntil > DateTime.UtcNow;

@@ -39,7 +39,7 @@ namespace pingword.src.Configuration
                 .AddEntityFrameworkStores<AppDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddDbContext<AppDbContext>(options => options.UseSqlite(configuration.GetConnectionString("Db")));
+         
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
@@ -62,8 +62,8 @@ namespace pingword.src.Configuration
             services.AddValidatorsFromAssemblyContaining<FeedBackRequestDto>();
             services.AddValidatorsFromAssemblyContaining<UserRegisterRequestDto>();
 
-            services.AddSingleton<IntegrityService>();
-            
+            services.AddScoped<IntegrityService>();
+
 
 
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
@@ -79,7 +79,7 @@ namespace pingword.src.Configuration
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
+                    ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtOptions.ValidIssuer,
                     ValidAudience = jwtOptions.ValidAudience,
@@ -88,11 +88,7 @@ namespace pingword.src.Configuration
                 };
             });
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-            //    options.AddPolicy("UserOnly", policy => policy.RequireRole("User")); ;
-            //});
+      
 
             return services;
         }

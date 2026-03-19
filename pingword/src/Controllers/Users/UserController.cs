@@ -14,8 +14,7 @@ namespace pingword.src.Controllers.Users
     {
         private readonly IUserService _userService;
 
-        
-
+       
         public UserController(IUserService userService)
         {
             _userService = userService; 
@@ -35,8 +34,29 @@ namespace pingword.src.Controllers.Users
         {
             Log.Information("Attempting to log in user with email: {Email}", request.Email);
             var response = await _userService.LoginUser(request);
+            
             return Ok(response);
         }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(RefreshTokenDto tokenDto)
+        {
+            var refresh = await _userService.RefreshToken(tokenDto);
+            return Ok(refresh);
+        }
+
+        [Authorize]
+        [HttpPost("revoke")]
+        public async Task<IActionResult> Revoke()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _userService.Revoke(userId!);
+            if (!result) return BadRequest("User not exists");
+
+            return Ok();
+        }
+
+
 
         [Authorize]
         [HttpGet("performance")]
@@ -90,6 +110,19 @@ namespace pingword.src.Controllers.Users
         {
             await _userService.ResetPassword(request);
             return Ok("Senha alterada com sucesso!");
+        }
+
+
+        [Authorize]
+        [HttpPatch("user-level")]
+        public async Task<IActionResult> UpdateUserLevel([FromBody] UserLevelRequest request)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) { return Unauthorized(); }
+
+            var result = await _userService.UpdateLevelUser(userId, request);
+
+            return Ok(result);
         }
     }
 }

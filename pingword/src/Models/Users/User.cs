@@ -20,6 +20,9 @@ namespace pingword.src.Models.Users
         public string? ResetToken { get; set; }
         public DateTime ResetTokenExpiration {  get; set; }
 
+        public string? RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
+
         public ICollection<Notification>? Notifications { get; set; }
         public Study? StudyState { get; set; }
         public ICollection<Word>? Words { get; set; }

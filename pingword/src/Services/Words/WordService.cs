@@ -113,6 +113,8 @@ namespace pingword.src.Services.Words
 
             var wordCount = await _repository.CountAsync(userId);
 
+            if (user == null) return;
+
             if (!user.IsPremium && wordCount >= 20)
             {
                 throw new InvalidOperationException("Limite de 20 palavras atingido para usuários Free. Torne-se Premium!");
