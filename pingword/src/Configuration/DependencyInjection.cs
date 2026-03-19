@@ -62,7 +62,9 @@ namespace pingword.src.Configuration
             services.AddValidatorsFromAssemblyContaining<UserRegisterRequestDto>();
 
             services.AddScoped<IntegrityService>();
-            
+
+
+
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
             var jwtOptions = configuration.GetSection("JWT").Get<JwtOptions>() ?? throw new InvalidOperationException("JWT settings not Found");
 
@@ -76,7 +78,7 @@ namespace pingword.src.Configuration
                 {
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                    ValidateLifetime = true,
+                    ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtOptions.ValidIssuer,
                     ValidAudience = jwtOptions.ValidAudience,
@@ -85,11 +87,7 @@ namespace pingword.src.Configuration
                 };
             });
 
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-            //    options.AddPolicy("UserOnly", policy => policy.RequireRole("User")); ;
-            //});
+      
 
             return services;
         }

@@ -11,5 +11,9 @@ namespace pingword.src.Interfaces.Users
         Task<bool> ForgotPasswordAsync(ForgotPasswordDto request);
         Task<bool> ResetPassword(ResetPasswordDto request);
         Task<bool> DeleteAccountAsync(string userID);
+
+        Task<RefreshTokenDto> UpdateLevelUser(string userID, UserLevelRequest request);
+        Task<RefreshTokenDto> RefreshToken(RefreshTokenDto tokenDto);
+        Task<bool> Revoke(string userId);
     }
 }

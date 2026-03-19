@@ -5,6 +5,7 @@ using pingword.src.Configuration;
 using pingword.src.Interfaces.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace pingword.src.Services.Users
@@ -29,7 +30,7 @@ namespace pingword.src.Services.Users
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(60),
+                Expires = DateTime.UtcNow.AddMinutes(15),
             
                 SigningCredentials = singningCredentials
             };
@@ -38,12 +39,19 @@ namespace pingword.src.Services.Users
             return tokenHanlder.CreateJwtSecurityToken(tokenDescriptor);
         }
 
+        public string GenerateRefreshToken()
+        {
+            Span<byte> secureRandomBytes = stackalloc byte[128];
+            RandomNumberGenerator.Fill(secureRandomBytes);
+            return Convert.ToBase64String(secureRandomBytes); ;
+        }
+
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
             var tokenValidationParameters = new TokenValidationParameters
             {
-                ValidateAudience = true,
-                ValidateIssuer = true,
+                ValidateAudience = false,
+                ValidateIssuer = false,
                 
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey)),

@@ -5,6 +5,7 @@ using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 using pingword.src.DTOs.Users;
 using pingword.src.Enums.StudyState;
 using pingword.src.Interfaces.Users;
@@ -106,14 +107,71 @@ namespace pingword.src.Services.Users
 
             authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
             var token = _tokenService.GenerateAccessToken(authClaims);
+            var refreshToken = _tokenService.GenerateRefreshToken();
+
+            getUser.RefreshToken = refreshToken;
+            getUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             await _userManager.UpdateAsync(getUser);
             return new LoginResponseDto
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+                RefreshToken = refreshToken,
                 Expiration = token.ValidTo
             };
 
+        }
+
+        public async Task<bool> Revoke(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return false;
+
+            user.RefreshToken = null;
+            var result = await _userManager.UpdateAsync(user);
+
+            return result.Succeeded;
+        }
+
+        public async Task<RefreshTokenDto> RefreshToken(RefreshTokenDto tokenDto)
+        {
+
+            var responseInvalide = new RefreshTokenDto
+            {
+                AccessToken = "AccssToken invalido",
+                RefreshToken = "Refresh invalido",
+            };
+
+            if (string.IsNullOrEmpty(tokenDto.AccessToken) || string.IsNullOrEmpty(tokenDto.RefreshToken))
+                return responseInvalide;
+
+            var principal = _tokenService.GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+            if (principal == null) return responseInvalide;
+
+          
+            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await _userManager.FindByIdAsync(userId!);
+
+            
+            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            {
+                return responseInvalide;
+            }
+
+           
+            var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+            
+            user.RefreshToken = newRefreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7); 
+            await _userManager.UpdateAsync(user);
+
+            return new RefreshTokenDto
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+                RefreshToken = newRefreshToken
+            };
         }
 
         public async Task<UserPerformaceDto> GetUserPerformanceAsync(string userId)
@@ -256,9 +314,38 @@ namespace pingword.src.Services.Users
             await _userRepository.DeleteRange(user.Id);
 
             var userDeleted = await _userManager.DeleteAsync(user);
-            if (!userDeleted.Succeeded) return false;
+            return userDeleted.Succeeded;
 
-            return true;
+        }
+
+        public async Task<RefreshTokenDto> UpdateLevelUser(string userID, UserLevelRequest request)
+        {
+            var user = await _userManager.FindByIdAsync(userID);
+            if (user == null) throw new KeyNotFoundException("User not exists");
+
+            user.UserLevel = request.userLevel;
+            
+            var response = await _userManager.UpdateAsync(user);
+
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Name!),
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim("level", user.UserLevel.ToString()),
+                new Claim("is_premium", user.IsPremium.ToString().ToLower()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            };
+
+            var newAccessToken = _tokenService.GenerateAccessToken(authClaims);
+            var newRefreshToken = _tokenService.GenerateRefreshToken();
+
+
+            return new RefreshTokenDto
+            {
+                AccessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
+                RefreshToken = newRefreshToken
+            };
         }
     }
 }

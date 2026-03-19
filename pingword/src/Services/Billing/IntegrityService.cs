@@ -1,4 +1,4 @@
-using Google.Apis.Auth.OAuth2;
+﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.PlayIntegrity.v1;
 using Google.Apis.PlayIntegrity.v1.Data;
 using Google.Apis.Services;
@@ -25,10 +25,11 @@ namespace pingword.src.Services.Billing
             if (string.IsNullOrEmpty(json))
                 throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
 
+
             var credential = CredentialFactory
-            .FromJson<ServiceAccountCredential>(json)
-            .ToGoogleCredential()
-            .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
+                .FromJson<ServiceAccountCredential>(json)
+                .ToGoogleCredential()
+                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
 
             return new PlayIntegrityService(new BaseClientService.Initializer
             {
@@ -45,8 +46,6 @@ namespace pingword.src.Services.Billing
                 var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
                 var projectResource = _projectNumber.ToString();
 
-                Console.WriteLine($"🔍 Verificando token para project: {projectResource}");
-                Console.WriteLine($"📦 Package esperado: {_packageName}");
 
                 var result = await service.V1
                     .DecodeIntegrityToken(request, projectResource)
@@ -72,23 +71,11 @@ namespace pingword.src.Services.Billing
                 if (appVerdict == "PLAY_RECOGNIZED")
                     return "App Original e Seguro";
 
-                // UNEVALUATED pode ser aceito em alguns casos
+                
                 if (appVerdict == "UNEVALUATED")
-                    return "App Original (UNEVALUATED)"; // Mude para aceitar se necessário
+                    return "App Original (UNEVALUATED)"; 
 
                 return $"App não reconhecido: {appVerdict}";
-            }
-            catch (Google.GoogleApiException gex) when (gex.HttpStatusCode == System.Net.HttpStatusCode.BadRequest)
-            {
-                //Remover esse catch em produção
-                if (gex.Message.Contains("App is not found"))
-                {
-                    Console.WriteLine("✅ Modo TESTE: App em fase interna (Play Integrity skip)");
-                    return "App Original e Seguro";
-                    
-                    
-                }
-                throw;
             }
             catch (Exception ex)
             {

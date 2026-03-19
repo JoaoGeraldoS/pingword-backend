@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Google.Apis.PlayIntegrity.v1.Data;
+using Microsoft.AspNetCore.Mvc;
 using pingword.src.Services.Billing;
 
 namespace pingword.src.Controllers.Billing
@@ -29,12 +30,12 @@ namespace pingword.src.Controllers.Billing
                 if (status == "App Original e Seguro")
                     return Ok(new { success = true });
 
-          
+
                 return StatusCode(403, new { success = false, message = status });
             }
             catch (Exception ex)
             {
-          
+
                 return StatusCode(500, new { success = false, message = ex.Message, detail = ex.InnerException?.Message });
             }
         }

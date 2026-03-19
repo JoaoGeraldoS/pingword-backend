@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-COPY pingword/*.csproj ./ 
+COPY *.csproj ./ 
 RUN dotnet restore
 
 
-COPY pingword/. .
+COPY . .
 RUN dotnet publish "pingword.csproj" -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime

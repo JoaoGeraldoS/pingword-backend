@@ -55,7 +55,7 @@ namespace pingword.src.Controllers.Billing
         public IActionResult GoogleWebhook([FromBody] object body)
         {
             Console.WriteLine(body);
-            return Ok();
+            return  Ok();
         }
 
         [Authorize]
