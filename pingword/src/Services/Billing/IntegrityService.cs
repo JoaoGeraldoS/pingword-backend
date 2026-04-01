@@ -52,7 +52,7 @@ namespace pingword.src.Services.Billing
         
                 // 3. 🚩 A MUDANÇA: Use a navegação explícita via .Projects
                 // Isso garante que o Google não confunda o ID do projeto com o Package Name
-                var result = await service.Projects
+                var result = await service.V1
                     .DecodeIntegrityToken(decodeRequest, projectResource)
                     .ExecuteAsync();
         
