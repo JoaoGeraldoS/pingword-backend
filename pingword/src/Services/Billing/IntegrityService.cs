@@ -47,7 +47,9 @@ namespace pingword.src.Services.Billing
                 // 1. Prepara o corpo com o token
                 var decodeRequest = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
                 
-        
+
+                var resourceName = $"projects/{_projectNumber}/apps/{_packageName}";
+                Console.WriteLine($"RESOURCE: '{resourceName}'");
                 // 3. 🚩 A SOLUÇÃO: Use o construtor da classe ProjectsResource
                 // Isso elimina a ambiguidade da ordem dos parâmetros
                  var requestExecute = service.V1.DecodeIntegrityToken(
