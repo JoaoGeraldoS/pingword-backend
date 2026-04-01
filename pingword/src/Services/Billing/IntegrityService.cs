@@ -44,25 +44,26 @@ namespace pingword.src.Services.Billing
             {
                 var service = GetPlayIntegrityService();
         
-                // 1. O corpo da requisição com o token vindo do Android
+                // 1. Prepara o corpo com o token
                 var decodeRequest = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
                 
-                // 2. O recurso do projeto DEVE ter o prefixo "projects/"
-                var projectResource = $"projects/{_projectNumber}"; 
+                // 2. Define o nome do recurso corretamente
+                var projectName = $"projects/{_projectNumber}"; 
         
-                // 3. 🚩 A MUDANÇA: Use a navegação explícita via .Projects
-                // Isso garante que o Google não confunda o ID do projeto com o Package Name
-                var result = await service.V1
-                    .DecodeIntegrityToken(decodeRequest, projectResource)
-                    .ExecuteAsync();
+                // 3. 🚩 A SOLUÇÃO: Use o construtor da classe ProjectsResource
+                // Isso elimina a ambiguidade da ordem dos parâmetros
+                var requestExecute = new ProjectsResource.DecodeIntegrityTokenRequest(
+                    service, 
+                    decodeRequest, 
+                    projectName
+                );
         
+                // 4. Executa a chamada
+                var result = await requestExecute.ExecuteAsync();
+        
+                // --- O restante do seu código de validação ---
                 var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
-                var deviceIntegrity = result.TokenPayloadExternal?.DeviceIntegrity;
-        
-                // Logs para Debug no Render
-                Console.WriteLine($"Token Decodificado para Package: {appIntegrity?.PackageName}");
-        
-                // 4. Validação do Package Name
+                
                 if (appIntegrity?.PackageName != _packageName)
                 {
                     return $"Fraude: Package Name divergente ({appIntegrity?.PackageName})";
@@ -70,7 +71,6 @@ namespace pingword.src.Services.Billing
         
                 var appVerdict = appIntegrity?.AppRecognitionVerdict;
         
-                // 5. Lógica flexível para aceitar versões de teste (USB/Sideload)
                 if (appVerdict == "PLAY_RECOGNIZED" || appVerdict == "UNEVALUATED" || appVerdict == "UNRECOGNIZED_VERSION")
                 {
                     return "App Original e Seguro";
