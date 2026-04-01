@@ -52,12 +52,11 @@ namespace pingword.src.Services.Billing
         
                 // 3. 🚩 A SOLUÇÃO: Use o construtor da classe ProjectsResource
                 // Isso elimina a ambiguidade da ordem dos parâmetros
-                var requestExecute = new ProjectsResource.DecodeIntegrityTokenRequest(
-                    service, 
-                    decodeRequest, 
-                    projectName
-                );
-        
+                 var requestExecute = service.V1.DecodeIntegrityToken(
+                     decodeRequest,
+                     $"projects/{_projectNumber}"
+                 );
+                        
                 // 4. Executa a chamada
                 var result = await requestExecute.ExecuteAsync();
         
