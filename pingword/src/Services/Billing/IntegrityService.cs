@@ -49,16 +49,14 @@ namespace pingword.src.Services.Billing
                 
 
                 var resourceName = $"projects/{_projectNumber}/apps/{_packageName}";
-                Console.WriteLine($"RESOURCE: '{resourceName}'");
-                // 3. 🚩 A SOLUÇÃO: Use o construtor da classe ProjectsResource
-                // Isso elimina a ambiguidade da ordem dos parâmetros
-                 var requestExecute = service.V1.DecodeIntegrityToken(
-                     decodeRequest,
-                    $"projects/{_projectNumber}/apps/{_packageName}"
-                 );
-                        
-                // 4. Executa a chamada
-                var result = await requestExecute.ExecuteAsync();
+
+                var request = new V1Resource.DecodeIntegrityTokenRequest(
+                    service,
+                    decodeRequest,
+                    resourceName
+                );
+                
+                var result = await request.ExecuteAsync();
         
                 // --- O restante do seu código de validação ---
                 var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
