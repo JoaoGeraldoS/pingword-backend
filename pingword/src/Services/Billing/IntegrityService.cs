@@ -44,7 +44,7 @@ namespace pingword.src.Services.Billing
             {
                 var service = GetPlayIntegrityService();
                 var request = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
-                var projectResource = _projectNumber.ToString();
+                var projectResource = $"projects/{_projectNumber}";
 
 
                 var result = await service.V1
