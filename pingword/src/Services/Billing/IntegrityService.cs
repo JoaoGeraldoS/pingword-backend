@@ -23,6 +23,9 @@ namespace pingword.src.Services.Billing
         {
             try
             {
+
+                Console.WriteLine($"[DEBUG] Token recebido (primeiros 50 chars): {integrityToken?.Substring(0, Math.Min(50, integrityToken?.Length ?? 0))}");
+                
                 var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
                            ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
         
