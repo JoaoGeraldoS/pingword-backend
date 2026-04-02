@@ -9,7 +9,6 @@ namespace pingword.src.Services.Billing
     {
         private readonly string _packageName = "com.pingword.app";
         private readonly long _projectNumber = 540468689107;
-        private readonly string _projectId = "pingword";
         private readonly IConfiguration _configuration;
 
         public IntegrityService(IConfiguration configuration)
@@ -45,7 +44,7 @@ namespace pingword.src.Services.Billing
         };
 
         // Classic API usa packageName em vez de projectNumber
-        var request = service.V1.DecodeIntegrityToken(requestBody, _projectNumber.ToString());
+        var request = service.V1.DecodeIntegrityToken(requestBody, _packageName);
         var response = await request.ExecuteAsync();
 
         var appIntegrity = response.TokenPayloadExternal?.AppIntegrity;
