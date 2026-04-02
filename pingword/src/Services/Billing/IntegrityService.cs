@@ -59,7 +59,7 @@ namespace pingword.src.Services.Billing
                     .GetAccessTokenForRequestAsync();
         
                 // 3. Monta URL correta
-                var url = $"https://playintegrity.googleapis.com/v1/projects/{_projectNumber}/apps/{_packageName}:decodeIntegrityToken";
+                var url = $"https://playintegrity.googleapis.com/v1/projects/{_projectNumber}:decodeIntegrityToken";
         
                 using var http = new HttpClient();
         
