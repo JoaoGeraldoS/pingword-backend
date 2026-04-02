@@ -38,29 +38,60 @@ namespace pingword.src.Services.Billing
             });
         }
 
-        public async Task<string> VerifyTokenAsync(string integrityToken)
+       public async Task<string> VerifyTokenAsync(string integrityToken)
         {
             try
             {
-                var service = GetPlayIntegrityService();
+                var json = _configuration["GOOGLE_SERVICE_ACCOUNT_JSON"]
+                           ?? Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
         
-                // 1. Prepara o corpo com o token
-                var decodeRequest = new DecodeIntegrityTokenRequest { IntegrityToken = integrityToken };
-                
-
-                var resourceName = $"projects/{_projectNumber}/apps/{_packageName}";
-
-                var request = new V1Resource.DecodeIntegrityTokenRequest(
-                    service,
-                    decodeRequest,
-                    resourceName
+                if (string.IsNullOrEmpty(json))
+                    throw new Exception("A chave GOOGLE_SERVICE_ACCOUNT_JSON está vazia ou nula!");
+        
+                // 1. Cria credencial
+                var credential = GoogleCredential
+                    .FromJson(json)
+                    .CreateScoped("https://www.googleapis.com/auth/playintegrity");
+        
+                // 2. Gera access token
+                var accessToken = await credential
+                    .UnderlyingCredential
+                    .GetAccessTokenForRequestAsync();
+        
+                // 3. Monta URL correta
+                var url = $"https://playintegrity.googleapis.com/v1/projects/{_projectNumber}/apps/{_packageName}:decodeIntegrityToken";
+        
+                using var http = new HttpClient();
+        
+                http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        
+                // 4. Body correto (IMPORTANTE: snake_case)
+                var body = new
+                {
+                    integrity_token = integrityToken
+                };
+        
+                var content = new StringContent(
+                    System.Text.Json.JsonSerializer.Serialize(body),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
                 );
-                
-                var result = await request.ExecuteAsync();
         
-                // --- O restante do seu código de validação ---
-                var appIntegrity = result.TokenPayloadExternal?.AppIntegrity;
-                
+                // 5. Request
+                var response = await http.PostAsync(url, content);
+                var responseString = await response.Content.ReadAsStringAsync();
+        
+                if (!response.IsSuccessStatusCode)
+                {
+                    return $"Erro HTTP: {response.StatusCode} - {responseString}";
+                }
+        
+                // 6. Desserializa
+                var result = System.Text.Json.JsonSerializer.Deserialize<DecodeIntegrityTokenResponse>(responseString);
+        
+                var appIntegrity = result?.TokenPayloadExternal?.AppIntegrity;
+        
                 if (appIntegrity?.PackageName != _packageName)
                 {
                     return $"Fraude: Package Name divergente ({appIntegrity?.PackageName})";
@@ -68,12 +99,12 @@ namespace pingword.src.Services.Billing
         
                 var appVerdict = appIntegrity?.AppRecognitionVerdict;
         
-                if (appVerdict == "PLAY_RECOGNIZED" || appVerdict == "UNEVALUATED" || appVerdict == "UNRECOGNIZED_VERSION")
+                if (appVerdict == "PLAY_RECOGNIZED")
                 {
                     return "App Original e Seguro";
                 }
         
-                return $"App não reconhecido: {appVerdict}";
+                return $"App inválido: {appVerdict}";
             }
             catch (Exception ex)
             {
