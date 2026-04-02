@@ -45,7 +45,7 @@ namespace pingword.src.Services.Billing
         };
 
         // Classic API usa packageName em vez de projectNumber
-        var request = service.V1.DecodeIntegrityToken(requestBody, _packageName);
+        var request = service.V1.DecodeIntegrityToken(requestBody, _projectNumber.ToString());
         var response = await request.ExecuteAsync();
 
         var appIntegrity = response.TokenPayloadExternal?.AppIntegrity;
