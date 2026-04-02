@@ -45,7 +45,7 @@ namespace pingword.src.Services.Billing
                 };
         
                 // SDK monta a URL correta automaticamente
-                var request = service.V1.DecodeIntegrityToken(requestBody, $"projects/{_projectNumber}");
+                var request = service.V1.DecodeIntegrityToken(requestBody, _projectNumber.ToString());
                 var response = await request.ExecuteAsync();
         
                 var appIntegrity = response.TokenPayloadExternal?.AppIntegrity;
