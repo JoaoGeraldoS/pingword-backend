@@ -9,6 +9,7 @@ namespace pingword.src.Services.Billing
     {
         private readonly string _packageName = "com.pingword.app";
         private readonly long _projectNumber = 540468689107;
+        private readonly string _projectId = "pingword";
         private readonly IConfiguration _configuration;
 
         public IntegrityService(IConfiguration configuration)
@@ -59,7 +60,7 @@ namespace pingword.src.Services.Billing
                     .GetAccessTokenForRequestAsync();
         
                 // 3. Monta URL correta
-                var url = $"https://playintegrity.googleapis.com/v1/projects/{_projectNumber}:decodeIntegrityToken";
+               var url = $"https://playintegrity.googleapis.com/v1/projects/{_projectId}:decodeIntegrityToken";
         
                 using var http = new HttpClient();
         
