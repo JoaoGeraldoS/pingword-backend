@@ -110,7 +110,7 @@ namespace pingword.src.Services.Users
             var refreshToken = _tokenService.GenerateRefreshToken();
 
             getUser.RefreshToken = refreshToken;
-            getUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            getUser.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
 
             await _userManager.UpdateAsync(getUser);
             return new LoginResponseDto
