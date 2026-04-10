@@ -32,7 +32,10 @@ namespace pingword.src.Services.Billing
             var credential = CredentialFactory
                 .FromJson<ServiceAccountCredential>(json)
                 .ToGoogleCredential()
-                .CreateScoped(PlayIntegrityService.Scope.Playintegrity);
+                .CreateScoped(new[] {
+                    AndroidPublisherService.Scope.Androidpublisher,
+                    PlayIntegrityService.Scope.Playintegrity
+                });
 
             _publisherService = new AndroidPublisherService(new BaseClientService.Initializer
             {
