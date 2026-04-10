@@ -48,6 +48,9 @@ namespace pingword.src.Services.Billing
         {
             try
             {
+
+                Console.WriteLine($"DEBUG BILLING: Tentando validar ID 'premium-mensal' com o Token: {purchaseToken.Substring(0, 10)}...");
+                
                 var result = await _publisherService.Purchases.Subscriptions
                     .Get("com.pingword.app", "premium-mensal", purchaseToken)
                     .ExecuteAsync();
@@ -77,7 +80,7 @@ namespace pingword.src.Services.Billing
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao validar assinatura: {ex.Message}");
+               Console.WriteLine($"ERRO GOOGLE API: {ex.Message} | Conteúdo: {ex.Error}");
                 return false;
             }
         }
