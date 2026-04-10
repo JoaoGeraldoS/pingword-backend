@@ -55,6 +55,8 @@ namespace pingword.src.Services.Billing
                 var result = await _publisherService.Purchases.Subscriptions
                     .Get("com.pingword.app", "premium-mensal", purchaseToken)
                     .ExecuteAsync();
+
+                Console.WriteLine($"DEBUG BILLING: Resultado da API do Google: {result.ProfileId}");
         
                 long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         
