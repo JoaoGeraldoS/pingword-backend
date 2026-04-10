@@ -9,6 +9,7 @@ using pingword.src.Models.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Google;
 
 namespace pingword.src.Services.Billing
 {
@@ -48,78 +49,48 @@ namespace pingword.src.Services.Billing
         {
             try
             {
-                Console.WriteLine($"DEBUG BILLING: Validando token: {purchaseToken.Substring(0, 10)}...");
         
-                var user = await _userManager.FindByIdAsync(userId);
-                if (user == null) return false;
+                Console.WriteLine($"DEBUG BILLING: Tentando validar ID 'premium-mensal' com o Token: {purchaseToken.Substring(0, 10)}...");
         
-                // 1. TENTAR COMO SUBSCRIPTION PRIMEIRO
-                try
+                var result = await _publisherService.Purchases.Subscriptions
+                    .Get("com.pingword.app", "premium-mensal", purchaseToken)
+                    .ExecuteAsync();
+        
+                long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        
+                if (result.ExpiryTimeMillis.HasValue &&
+                    result.ExpiryTimeMillis.Value > now)
                 {
-                    var result = await _publisherService.Purchases.Subscriptions
-                        .Get("com.pingword.app", "premium-mensal", purchaseToken)
-                        .ExecuteAsync();
+                    var user = await _userManager.FindByIdAsync(userId);
         
-                    return await UpdateUserPremium(user, result, purchaseToken);
-                }
-                catch (GoogleApiException subEx) when (subEx.HttpStatusCode == HttpStatusCode.BadRequest)
-                {
-                    Console.WriteLine($"DEBUG: Não é subscription. Tentando in-app... Error: {subEx.Message}");
-                }
+                    if (user == null)
+                        return false;
         
-                // 2. TENTAR COMO IN-APP PURCHASE
-                try
-                {
-                    var result = await _publisherService.Purchases.Products
-                        .Get("com.pingword.app", "premium-mensal", purchaseToken)
-                        .ExecuteAsync();
+                    user.IsPremium = true;
+                    user.PurchaseToken = purchaseToken;
+                    user.PremiumUntil = DateTimeOffset
+                        .FromUnixTimeMilliseconds(result.ExpiryTimeMillis.Value)
+                        .UtcDateTime;
         
-                    return await UpdateUserPremium(user, result, purchaseToken);
-                }
-                catch (Exception inAppEx)
-                {
-                    Console.WriteLine($"DEBUG: Falha também como in-app. Error: {inAppEx.Message}");
-                    return false;
+                    var update = await _userManager.UpdateAsync(user);
+        
+                    return update.Succeeded;
                 }
         
+                return false;
+            }
+            catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.BadRequest)
+            {
+                Console.WriteLine($"❌ BAD REQUEST: {ex.Message}");
+                Console.WriteLine($"   - Verifique se Product ID é EXATAMENTE 'premium-mensal'");
+                Console.WriteLine($"   - Token pode ser de teste - adicione email no Google Play Console");
                 return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERRO GOOGLE API: {ex.Message}");
+                Console.WriteLine($"ERRO GOOGLE API: {ex.Message} | Conteúdo: {ex.}");
                 return false;
             }
-        }
-        
-        private async Task<bool> UpdateUserPremium(User user, dynamic purchaseResult, string purchaseToken)
-        {
-            long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        
-            DateTime? expiryDate = null;
-            
-            // Para Subscriptions
-            if (purchaseResult.ExpiryTimeMillis.HasValue)
-            {
-                expiryDate = DateTimeOffset.FromUnixTimeMilliseconds(purchaseResult.ExpiryTimeMillis.Value).UtcDateTime;
-            }
-            // Para In-App Products
-            else if (purchaseResult.ExpiryTimeMillis.HasValue || purchaseResult.PurchaseState == 0) // Purchased
-            {
-                // Para compras únicas, definir 1 ano ou conforme sua lógica
-                expiryDate = DateTimeOffset.UtcNow.AddYears(1).UtcDateTime;
-            }
-        
-            if (expiryDate.HasValue && expiryDate.Value > DateTime.UtcNow)
-            {
-                user.IsPremium = true;
-                user.PurchaseToken = purchaseToken;
-                user.PremiumUntil = expiryDate.Value;
-        
-                var update = await _userManager.UpdateAsync(user);
-                return update.Succeeded;
-            }
-        
-            return false;
         }
 
         public async Task<User> Restore(string userId)
