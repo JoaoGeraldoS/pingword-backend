@@ -80,7 +80,7 @@ namespace pingword.src.Services.Billing
             }
             catch (Exception ex)
             {
-               Console.WriteLine($"ERRO GOOGLE API: {ex.Message} | Conteúdo: {ex.Error}");
+               Console.WriteLine($"ERRO GOOGLE API: {ex.Message}");
                 return false;
             }
         }
