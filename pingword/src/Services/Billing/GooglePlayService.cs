@@ -76,7 +76,7 @@ namespace pingword.src.Services.Billing
         
                     return await UpdateUserPremium(user, result, purchaseToken);
                 }
-                catch (GoogleApiException inAppEx)
+                catch (Exception inAppEx)
                 {
                     Console.WriteLine($"DEBUG: Falha também como in-app. Error: {inAppEx.Message}");
                     return false;
