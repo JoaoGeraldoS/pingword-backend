@@ -52,7 +52,7 @@ namespace pingword.src.Services.Billing
                 var packageName = "com.pingword.app"; 
                 var productId = "premium-mensal";
         
-                Console.WriteLine($"DEBUG BILLING: Tentando validar ID 'premium-mensal' com o Token: {purchaseToken.Substring(0, 10)}...");
+                Console.WriteLine($"DEBUG BILLING: Tentando validar ID 'premium-mensal' com o Token: {purchaseToken}...");
         
                 var result = await _publisherService.Purchases.Subscriptions
                     .Get(packageName, productId, purchaseToken.Trim())
