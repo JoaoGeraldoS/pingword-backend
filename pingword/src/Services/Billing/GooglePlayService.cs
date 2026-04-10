@@ -79,13 +79,6 @@ namespace pingword.src.Services.Billing
         
                 return false;
             }
-            catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.BadRequest)
-            {
-                Console.WriteLine($"❌ BAD REQUEST: {ex.Message}");
-                Console.WriteLine($"   - Verifique se Product ID é EXATAMENTE 'premium-mensal'");
-                Console.WriteLine($"   - Token pode ser de teste - adicione email no Google Play Console");
-                return false;
-            }
             catch (Exception ex)
             {
                 Console.WriteLine($"ERRO GOOGLE API: {ex.Message}");
