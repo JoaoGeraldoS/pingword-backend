@@ -62,7 +62,7 @@ namespace pingword.src.Configuration
             services.AddValidatorsFromAssemblyContaining<UserRegisterRequestDto>();
 
             services.AddScoped<IntegrityService>();
-
+            services.AddScoped<GooglePlayService>();
 
 
             services.Configure<JwtOptions>(configuration.GetSection("JWT"));
