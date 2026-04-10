@@ -49,7 +49,7 @@ namespace pingword.src.Services.Billing
             try
             {
                 var result = await _publisherService.Purchases.Subscriptions
-                    .Get("com.pingword.app", "pingword_premium", purchaseToken)
+                    .Get("com.pingword.app", "premium-mensal", purchaseToken)
                     .ExecuteAsync();
 
                 long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
