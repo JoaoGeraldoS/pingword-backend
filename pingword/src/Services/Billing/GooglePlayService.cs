@@ -49,16 +49,9 @@ namespace pingword.src.Services.Billing
         {
             try
             {
-                var packageName = "com.pingword.app"; 
-                var productId = "premium-mensal";
-        
-                Console.WriteLine($"DEBUG BILLING: Tentando validar ID 'premium-mensal' com o Token: {purchaseToken}...");
-        
                 var result = await _publisherService.Purchases.Subscriptions
-                    .Get(packageName, productId, purchaseToken.Trim())
+                    .Get("com.pingword.app", "premium_mensal", purchaseToken)
                     .ExecuteAsync();
-
-                Console.WriteLine($"DEBUG BILLING: Resultado da API do Google: {result.ProfileId}");
         
                 long now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         
@@ -67,8 +60,6 @@ namespace pingword.src.Services.Billing
                 {
                     var user = await _userManager.FindByIdAsync(userId);
 
-                    
-        
                     if (user == null)
                         return false;
         
