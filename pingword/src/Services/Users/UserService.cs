@@ -122,6 +122,86 @@ namespace pingword.src.Services.Users
 
         }
 
+         public async Task<LoginResponseDto> LoginGoogle(string googleToken)
+         {
+             try
+             {
+        
+                 var settings = new GoogleJsonWebSignature.ValidationSettings()
+                 {
+                     // O Audience DEVE ser o seu Client ID que está no Android e no Google Console
+                     Audience = new List<string> { "1007755012465-gebpostv1l6lkdltp5s9i0ed8p7q629u.apps.googleusercontent.com" }
+                 };
+        
+                 // Valida e extrai os dados do payload
+                 var payload = await GoogleJsonWebSignature.ValidateAsync(googleToken, settings);
+        
+                 var email = payload.Email;
+                 var name = payload.Name ?? "User";
+        
+                 // 2. Procura o usuário no banco pelo e-mail (CONTINUA IGUAL DAQUI PARA BAIXO)
+                 var user = await _userManager.FindByEmailAsync(email);
+                
+                 bool isNewUser = (user == null);
+        
+                 // 3. Se o usuário não existir, cria um novo (Registro Automático)
+                 if (isNewUser)
+                 {
+                     user = new User
+                     {
+                         Name = name,
+                         Email = email,
+                         UserName = email, // Ou Guid.NewGuid().ToString()
+                         Language = "Ingles",  // Idioma padrão
+                         UserLevel = Enums.Users.UserLevelEnum.BEGINNER,    // Nível inicial
+                         EmailConfirmed = true // Como vem do Google, já está verificado
+                     };
+        
+                     // Para login social, não passamos senha. O Identity criará o user sem password hash.
+                     var result = await _userManager.CreateAsync(user);
+                     if (!result.Succeeded)
+                     {
+                         throw new Exception("Falha ao criar usuário via Google");
+                     }
+                 }
+        
+                 // 4. Gerar os Claims (Igual ao seu método Login normal)
+                 var userRoles = await _userManager.GetRolesAsync(user);
+                 var authClaims = new List<Claim>
+                 {
+                     new Claim(ClaimTypes.Name, user.Name!),
+                     new Claim(ClaimTypes.Email, user.Email!),
+                     new Claim("level", user.UserLevel.ToString()),
+                     new Claim("is_premium", user.IsPremium.ToString().ToLower()),
+                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                 };
+                 authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+        
+                 // 5. Gerar Token de Acesso e Refresh Token (Reutilizando sua lógica)
+                 var accessToken = _tokenService.GenerateAccessToken(authClaims);
+                 var refreshToken = _tokenService.GenerateRefreshToken();
+        
+                 user.RefreshToken = refreshToken;
+                 user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+        
+                 await _userManager.UpdateAsync(user);
+        
+                 return new LoginResponseDto
+                 {
+                     AccessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
+                     RefreshToken = refreshToken,
+                     Expiration = accessToken.ValidTo,
+                     IsFirstAccess = isNewUser
+                 };
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError("Erro no login Google: {Message}", ex.Message);
+                 throw new UnauthorizedAccessException("Falha na autenticação com Google.");
+             }
+         }
+
         public async Task<bool> Revoke(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
