@@ -15,5 +15,6 @@ namespace pingword.src.Interfaces.Users
         Task<RefreshTokenDto> UpdateLevelUser(string userID, UserLevelRequest request);
         Task<RefreshTokenDto> RefreshToken(RefreshTokenDto tokenDto);
         Task<bool> Revoke(string userId);
+        Task<LoginResponseDto> LoginGoogle(string googleToken);
     }
 }
