@@ -25,16 +25,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var jsonConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG_JSON");
+var jsonContent = builder.Configuration["FirebaseConfig:JsonContent"];
 
-if (string.IsNullOrEmpty(jsonConfig)) {
-    throw new Exception("Variável de ambiente FIREBASE_CONFIG_JSON não encontrada.");
-}
-
-FirebaseApp.Create(new AppOptions()
+if (!string.IsNullOrEmpty(jsonContent))
 {
-    Credential = GoogleCredential.FromJson(jsonConfig)
-});
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromJson(jsonContent)
+    });
+}
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
