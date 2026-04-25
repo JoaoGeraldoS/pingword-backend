@@ -23,6 +23,10 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("app-pingword-firebase.json")
+});
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
