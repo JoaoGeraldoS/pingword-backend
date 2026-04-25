@@ -1,8 +1,6 @@
-using FirebaseAdmin.Auth;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using pingword.src.DTOs.Users;
 using pingword.src.Enums.StudyState;
 using pingword.src.Interfaces.Users;
