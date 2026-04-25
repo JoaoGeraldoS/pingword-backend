@@ -23,9 +23,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var jsonConfig = Environment.GetEnvironmentVariable("FIREBASE_CONFIG_JSON");
+
+if (string.IsNullOrEmpty(jsonConfig)) {
+    throw new Exception("Variável de ambiente FIREBASE_CONFIG_JSON não encontrada.");
+}
+
 FirebaseApp.Create(new AppOptions()
 {
-    Credential = GoogleCredential.FromFile("app-pingword-firebase.json")
+    // Usa FromJson para ler a string diretamente
+    Credential = GoogleCredential.FromJson(jsonConfig)
 });
 
 builder.Services.AddControllers()
