@@ -124,5 +124,12 @@ namespace pingword.src.Controllers.Users
 
             return Ok(result);
         }
+
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginGoogle([FromBody] string googleToken)
+        {
+            var result = await _userService.LoginGoogle(googleToken);
+            return Ok(result);
+        }
     }
 }
