@@ -31,7 +31,6 @@ if (string.IsNullOrEmpty(jsonConfig)) {
 
 FirebaseApp.Create(new AppOptions()
 {
-    // Usa FromJson para ler a string diretamente
     Credential = GoogleCredential.FromJson(jsonConfig)
 });
 
